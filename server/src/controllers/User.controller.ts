@@ -5,8 +5,8 @@ import {
   passwordIsValid,
 } from "../utils/password.js";
 import { User } from "../models/User.js";
-import { IUser } from "../../../shared-types/IUser.js";
-import { IStatusCode } from "../../../shared-types/IStatusCode.js";
+import { IUser } from "../types/IUser.js";
+import { IStatusCode } from "../types/IStatusCode.js";
 
 export const register = async (
   req: Request<{}, any, IUser>,
@@ -18,14 +18,20 @@ export const register = async (
     await User.create({ name, email, password: encryptedPassword });
     res.json({ status: IStatusCode.CREATED });
   } catch (error) {
-    res.json({ status: IStatusCode.BAD_REQUEST });
+    res.json({ status: IStatusCode.NOT_FOUND });
   }
 };
 
+/**
+ * This function is used to log user
+ * @param {Request<{}, any, Pick<IUser, "email" | "password">>} req - Request which contain user email and user password
+ * @param {Response<{ user: string }>} res - Response which contain the Status code and the user token
+ * @returns {void}
+ */
 export const login = async (
   req: Request<{}, any, Pick<IUser, "email" | "password">>,
-  res: Response<{ status: IStatusCode; user: string }>
-) => {
+  res: Response<{ user: string }>
+): Promise<void> => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -34,8 +40,8 @@ export const login = async (
     if (!isValid) throw new Error("not valid");
     const token = getAuthenticatedToken(user.name, user.email);
     if (!token) throw new Error("cannot get token");
-    res.json({ status: IStatusCode.OK, user: token });
+    res.status(IStatusCode.OK).json({ user: token });
   } catch (error) {
-    res.json({ status: IStatusCode.NOT_FOUND, user: "" });
+    res.status(IStatusCode.NOT_FOUND).json({ user: "" });
   }
 };

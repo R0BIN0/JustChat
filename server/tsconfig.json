@@ -5,7 +5,8 @@
     "target": "ES2020",
     "sourceMap": true,
     "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    "strict": true
   },
   "include": ["src/**/*"]
 }
