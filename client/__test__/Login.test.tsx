@@ -8,18 +8,18 @@ import {
   screen,
 } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import store from "../../src/redux/store";
+import store from "../src/redux/store";
 export const queryClient = new QueryClient();
 
 import { Provider } from "react-redux";
-import Login from "../../src/components/Login/Login";
+import Login from "../src/components/Login/Login";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
-import { useLogin } from "../../src/components/Login/Login.logic";
-import { initialState } from "../../src/components/Login/Login.reducer";
+import { useLogin } from "../src/components/Login/Login.logic";
+import { initialState } from "../src/components/Login/Login.reducer";
 import React from "react";
 import { act } from "react-dom/test-utils";
 import axios from "axios";
-import { login } from "../../src/apis/actions/User.action";
+import { login } from "../src/apis/actions/User.action";
 import { vi as jest } from "vitest";
 
 export type IUseLogin = ReturnType<typeof useLogin>;
