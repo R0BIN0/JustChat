@@ -2,15 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./reducers/authReducer";
 
 const rootReducer = {
-    auth: authReducer
+  auth: authReducer,
 };
 
 export const store = configureStore({
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: false
-        })
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export type IRootState = ReturnType<typeof store.getState>;

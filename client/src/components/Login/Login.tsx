@@ -1,34 +1,50 @@
 import { useLogin } from "./Login.logic";
 
 const Login = () => {
-    const logic = useLogin();
+  const logic = useLogin();
 
-    if (logic.mutation.isError) {
-        return <p>Une erreur est survenue</p>;
-    }
+  if (logic.mutation.isError) {
+    return <p>{logic.state.error.message}</p>;
+  }
 
-    if (logic.mutation.isLoading) {
-        return <p>Chargement..</p>;
-    }
+  if (logic.mutation.isLoading) {
+    return <p>Chargement..</p>;
+  }
 
-    return (
-        <div>
-            <p>Login</p>
+  return (
+    <div>
+      <p>Login</p>
+
+      <form className="login-form" onSubmit={logic.handleSubmitAsync}>
+        <fieldset>
+          <p>
             <input
-                type="text"
-                id="email"
-                value={logic.state.email}
-                onChange={(e) => logic.handleInput(e)}
+              type="text"
+              id="email"
+              placeholder="Email"
+              value={logic.state.email}
+              onChange={(e) => logic.handleInput(e)}
             />
+            <label htmlFor="email">Email :</label>
+          </p>
+          <p>
             <input
-                type="password"
-                id="password"
-                value={logic.state.password}
-                onChange={(e) => logic.handleInput(e)}
+              type="password"
+              id="password"
+              placeholder="Mot de passe"
+              value={logic.state.password}
+              onChange={(e) => logic.handleInput(e)}
             />
-            <button onClick={() => logic.handleSubmitAsync()}>BOUTON</button>
-        </div>
-    );
+            <label htmlFor="password">Mot de passe</label>
+          </p>
+
+          <button id="submit" type="submit">
+            Se Connecter
+          </button>
+        </fieldset>
+      </form>
+    </div>
+  );
 };
 
 export default Login;

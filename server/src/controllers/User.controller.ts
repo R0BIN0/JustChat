@@ -30,7 +30,7 @@ export const register = async (
  */
 export const login = async (
   req: Request<{}, any, Pick<IUser, "email" | "password">>,
-  res: Response<{ user: string }>
+  res: Response<{ user: string } | { error: unknown }>
 ): Promise<void> => {
   const { email, password } = req.body;
   try {
@@ -42,6 +42,6 @@ export const login = async (
     if (!token) throw new Error("cannot get token");
     res.status(IStatusCode.OK).json({ user: token });
   } catch (error) {
-    res.status(IStatusCode.NOT_FOUND).json({ user: "" });
+    res.status(IStatusCode.NOT_FOUND).json({ error: "SOMETING BAD" });
   }
 };
