@@ -25,7 +25,7 @@ const Login = () => {
               value={logic.state.email}
               onChange={(e) => logic.handleInput(e)}
             />
-            <label htmlFor="email">Email :</label>
+            <label htmlFor="email">Email</label>
           </p>
           <p>
             <input
@@ -35,7 +35,9 @@ const Login = () => {
               value={logic.state.password}
               onChange={(e) => logic.handleInput(e)}
             />
-            <label htmlFor="password">Mot de passe</label>
+            <label data-testid="password-label" htmlFor="password">
+              Mot de passe
+            </label>
           </p>
 
           <button id="submit" type="submit">

@@ -1,33 +1,24 @@
-import {
-  render,
-  renderHook,
-  RenderHookResult,
-  RenderResult,
-  fireEvent,
-  waitFor,
-  screen,
-} from "@testing-library/react";
+import { render, renderHook, RenderHookResult, RenderResult, fireEvent, waitFor, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import store from "../src/redux/store";
 export const queryClient = new QueryClient();
 
 import { Provider } from "react-redux";
 import Login from "../src/components/Login/Login";
-import { BrowserRouter, MemoryRouter } from "react-router-dom";
+import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
 import { useLogin } from "../src/components/Login/Login.logic";
 import { initialState } from "../src/components/Login/Login.reducer";
 import React from "react";
 import { act } from "react-dom/test-utils";
 import axios from "axios";
-import { login } from "../src/apis/actions/User.action";
+import { login } from "../src/apis/actions/UserAction";
 import { vi as jest } from "vitest";
+import { createMemoryHistory } from "history";
+import Home from "../src/components/Home/Home";
 
 export type IUseLogin = ReturnType<typeof useLogin>;
 type IChildren = {
-  children: React.ReactElement<
-    unknown,
-    string | React.JSXElementConstructor<unknown>
-  >;
+  children: React.ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
 };
 
 const initHook = (): RenderHookResult<IUseLogin, unknown> => {
@@ -113,19 +104,16 @@ describe("Component mount/unmount correctly", () => {
 });
 
 describe("Email input behavior are working", () => {
-  let componentResult: RenderResult;
   let hookResult: RenderHookResult<IUseLogin, unknown>;
   let emailInput: Element | undefined;
 
   beforeEach(() => {
     hookResult = initHook();
-    componentResult = initComponent();
     emailInput = document.querySelector("#email") as Element;
   });
 
   afterEach(() => {
     hookResult.unmount();
-    componentResult.unmount();
     emailInput = undefined;
   });
 
@@ -138,7 +126,12 @@ describe("Email input behavior are working", () => {
     expect(emailInpInForm).toBeInTheDocument();
   });
 
-  it("The input has a corresponding label", () => {});
+  it("The input has a corresponding label", () => {
+    const emailLabel = screen.getByText("Email");
+    expect(emailLabel).toBeInTheDocument();
+    const htmlFor = emailLabel.getAttribute("for");
+    expect(htmlFor).toBe("email");
+  });
 
   it("Verify if the email input is on 'text' type", () => {
     const type = emailInput?.getAttribute("type");
@@ -167,19 +160,16 @@ describe("Email input behavior are working", () => {
 });
 
 describe("Password input behavior are working", () => {
-  let componentResult: RenderResult;
   let hookResult: RenderHookResult<IUseLogin, unknown>;
   let passwordInput: Element | undefined;
 
   beforeEach(() => {
     hookResult = initHook();
-    componentResult = initComponent();
     passwordInput = document.querySelector("#password") as Element;
   });
 
   afterEach(() => {
     hookResult.unmount();
-    componentResult.unmount();
     passwordInput = undefined;
   });
 
@@ -192,7 +182,12 @@ describe("Password input behavior are working", () => {
     expect(passwordInpInForm).toBeInTheDocument();
   });
 
-  it("The input has a corresponding label", () => {});
+  it("The input has a corresponding label", () => {
+    const passwordLabel = screen.getByText("Mot de passe");
+    expect(passwordLabel).toBeInTheDocument();
+    const htmlFor = passwordLabel.getAttribute("for");
+    expect(htmlFor).toBe("password");
+  });
 
   it("Verify if the password input is on 'password' type", () => {
     const type = passwordInput?.getAttribute("type");
@@ -256,10 +251,8 @@ describe("Submit button behavior are working", () => {
     initialState.password = "azerty123";
     hookResult = initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { user: "TOKEN" }, status: 200 };
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockedResponse));
+    const mockedResponse = { data: { token: "TOKEN" } };
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     expect(axios.post).toHaveBeenCalledTimes(1);
@@ -283,23 +276,19 @@ describe("Handle Login submit behavior", () => {
     const email = "test@gmail.com";
     const password = "azerty123";
 
-    const mockedResponse = { data: { user: "TOKEN" }, status: 200 };
+    const mockedResponse = { data: { token: "TOKEN" } };
 
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockedResponse));
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
 
     const data = await login({ email, password });
-    expect(data).toStrictEqual({ user: "TOKEN" });
+    expect(data).toStrictEqual({ token: "TOKEN" });
   });
 
   it("Simulate bad login request", async () => {
     const email = "";
     const password = "";
     const mockedResponse = new Error("API FAIL");
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.reject(mockedResponse));
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     await expect(login({ email, password })).rejects.toThrow("API FAIL");
   });
 
@@ -310,10 +299,8 @@ describe("Handle Login submit behavior", () => {
     initialState.password = "azerty123";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { user: "TOKEN" }, status: 200 };
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockedResponse));
+    const mockedResponse = { data: { token: "TOKEN" } };
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     const { isAuthenticated, token } = store.getState().auth;
@@ -321,20 +308,44 @@ describe("Handle Login submit behavior", () => {
     expect(token).toStrictEqual("TOKEN");
   });
 
-  it("If the reponse is good from the server. The user is redirected to '/Home' path", () => {});
+  it("If the reponse is good from the server. The user is redirected to '/Home' path", async () => {
+    const history = createMemoryHistory();
+    expect(history.location.pathname).toBe("/");
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty123";
+
+    const { unmount } = render(
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <MemoryRouter initialEntries={["/"]}>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/Home" element={<Home />} />
+            </Routes>
+          </MemoryRouter>
+        </Provider>
+      </QueryClientProvider>
+    );
+
+    const btnSubmit = document.querySelector("#submit") as Element;
+    const mockedResponse = { data: { token: "TOKEN" } };
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
+    fireEvent.click(btnSubmit);
+    await waitFor(() => {});
+    expect(screen.getByText("Home")).toBeInTheDocument();
+    unmount();
+  });
   it("If the reponse is wrong from the server. Dispatch infos to store", async () => {
     initialState.email = "test@gmail.com";
     initialState.password = "azerty123";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = {
-      data: { error: "Something went wrong" },
+      data: { error: { message: "Something went wrong" } },
       status: 404,
     };
 
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.reject(mockedResponse));
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     const { isAuthenticated, token } = store.getState().auth;
@@ -347,9 +358,7 @@ describe("Handle Login submit behavior", () => {
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = new Error("API FAIL");
-    axios.post = jest
-      .fn()
-      .mockImplementation(() => Promise.reject(mockedResponse));
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     screen.getByText("API FAIL");

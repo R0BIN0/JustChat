@@ -1,16 +1,11 @@
 import React, { useCallback, useReducer, useEffect } from "react";
-import {
-  reducer,
-  initialState,
-  IAction,
-  componentIsUnmounting,
-} from "./Login.reducer";
+import { reducer, initialState, IAction, componentIsUnmounting } from "./Login.reducer";
 import { useDispatch } from "react-redux";
 import { IAppDispatch } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
 import { setAuth } from "../../redux/reducers/authReducer";
 import { useMutation } from "react-query";
-import { login } from "../../apis/actions/User.action";
+import { login } from "../../apis/actions/UserAction";
 
 export const useLogin = () => {
   // Services
@@ -20,13 +15,10 @@ export const useLogin = () => {
   // State
   const [state, dispatch] = useReducer(reducer, { ...initialState });
 
-  const mutation = useMutation(
-    async () => login({ email: state.email, password: state.password }),
-    {
-      onSuccess: (res) => handleSuccess(res.user),
-      onError: (err: string) => handleError(err),
-    }
-  );
+  const mutation = useMutation(async () => login({ email: state.email, password: state.password }), {
+    onSuccess: (res) => handleSuccess(res.token),
+    onError: (err: string) => handleError(err),
+  });
 
   useEffect(() => {
     return componentIsUnmounting();
@@ -50,7 +42,9 @@ export const useLogin = () => {
    * @returns {void}
    */
   const handleSuccess = useCallback((token: string): void => {
+    console.log(token, "TOKEN");
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
+    console.log("je m'en vais");
     navigate("/Home");
   }, []);
 
