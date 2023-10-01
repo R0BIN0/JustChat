@@ -37,18 +37,34 @@ export const componentIsUnmounting = () => {
   initialState = getDefaultState();
 };
 
-export function reducer(state: IState, action: { type: IAction; payload: IState }): IState {
-  const { type, payload } = action;
-  switch (type) {
-    case IAction.UPDATE_INPUT:
-      return { ...payload };
-    case IAction.TOGGLE_PASSWORD:
-      return { ...payload };
-    case IAction.UPDATE_ERROR_MESSAGE:
-      return { ...payload };
-    case IAction.EMAIL_VALIDATION:
-      return { ...payload };
-    default:
-      return state;
-  }
+// export function reducer(state: IState, action: { type: IAction; payload: IState }): IState {
+//   const { type, payload } = action;
+//   switch (type) {
+//     case IAction.UPDATE_INPUT:
+//       return { ...payload };
+//     case IAction.TOGGLE_PASSWORD:
+//       return { ...payload };
+//     case IAction.UPDATE_ERROR_MESSAGE:
+//       return { ...payload };
+//     case IAction.EMAIL_VALIDATION:
+//       return { ...payload };
+//     default:
+//       return state;
+//   }
+// }
+
+// const actionHandlers = {
+//   [IAction.UPDATE_INPUT]: (_: IState, payload: IState) => ({ ...payload }),
+//   [IAction.TOGGLE_PASSWORD]: (_: IState, payload: IState) => ({ ...payload }),
+//   [IAction.UPDATE_ERROR_MESSAGE]: (_: IState, payload: IState) => ({ ...payload }),
+//   [IAction.EMAIL_VALIDATION]: (_: IState, payload: IState) => ({ ...payload }),
+// };
+
+const actionHandlers = Object.fromEntries(
+  Object.values(IAction).map((action) => [action, (_: IState, payload: IState) => ({ ...payload })])
+);
+
+export function reducer(state: IState, { type, payload }: { type: IAction; payload: IState }): IState {
+  const actionHandler = actionHandlers[type] || ((state) => state);
+  return actionHandler(state, payload);
 }

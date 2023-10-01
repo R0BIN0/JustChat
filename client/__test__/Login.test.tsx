@@ -15,6 +15,9 @@ import { login } from "../src/apis/actions/UserAction";
 import { vi as jest } from "vitest";
 import { createMemoryHistory } from "history";
 import Home from "../src/views/Home/Home";
+import Register from "../src/views/Register/Register";
+import { IErrorCode } from "../src/apis/IErrorCode";
+import { IStatusCode } from "../src/apis/IStatusCode";
 
 export type IUseLogin = ReturnType<typeof useLogin>;
 type IChildren = {
@@ -80,7 +83,6 @@ describe("Hook mount/unmount correctly", () => {
   });
 
   it("Verify that the initial state is correctly cleaned after the hook is unmounted", () => {
-    console.log(initialState, "INITIAL STATE");
     initialState.email = "test@gmail.com";
     hookResult = initHook();
     expect(hookResult.result.current.state.email).toBe("test@gmail.com");
@@ -112,52 +114,116 @@ describe("Component mount/unmount correctly", () => {
   });
 });
 
+describe("Global page elements are good", () => {
+  let componentResult: RenderResult;
+
+  beforeEach(() => (componentResult = initComponent()));
+  afterEach(() => componentResult.unmount());
+
+  it("Title corresponding to 'Se connecter'", () => {
+    const title = document.querySelector("h1");
+    expect(title).toBeInTheDocument();
+    expect(title?.textContent).toBe("Se connecter");
+  });
+  it("Subtitle corresponding to 'Connectez-vous pour chatter avec n’importe qui, n’importe où !'", () => {
+    const subtitle = document.querySelector("h2");
+    expect(subtitle).toBeInTheDocument();
+    expect(subtitle?.textContent).toBe("Connectez-vous pour chatter avec n’importe qui, n’importe où !");
+  });
+});
+
 describe("Email input behavior are working", () => {
   let hookResult: RenderHookResult<IUseLogin, unknown>;
-  let emailInput: Element | undefined;
+  let componentResult: RenderResult;
 
-  beforeEach(() => {
-    hookResult = initHook();
-    emailInput = document.querySelector("#email") as Element;
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    hookResult.unmount();
-    emailInput = undefined;
+    hookResult?.unmount();
+    componentResult?.unmount();
   });
 
   it("Verify if the input is present", () => {
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
     expect(emailInput).toBeInTheDocument();
   });
 
   it("The input is a child of a form", () => {
+    componentResult = initComponent();
     const emailInpInForm = document.querySelector(".login-form #email");
     expect(emailInpInForm).toBeInTheDocument();
   });
 
   it("Verify if the email input is on 'text' type", () => {
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
     const type = emailInput?.getAttribute("type");
     expect(type).toBe("text");
   });
 
   it("Verify if the email input placeHolder is 'Email'", () => {
-    const placeholder = emailInput?.getAttribute("placeholder");
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
+    const placeholder = emailInput.getAttribute("placeholder");
     expect(placeholder).toBe("Email");
   });
 
   it("Verify initial values of the input", () => {
-    const value = emailInput?.getAttribute("value");
-    const content = emailInput?.textContent;
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
+    const value = emailInput.getAttribute("value");
+    const content = emailInput.textContent;
     expect(value).toBe("");
     expect(content).toBe("");
   });
 
   it("Trigger the onChange is working", async () => {
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
     act(() => {
-      if (!emailInput) return;
       fireEvent.change(emailInput, { target: { value: "Hello" } });
     });
     expect(emailInput?.getAttribute("value")).toBe("Hello");
+  });
+  it("If email is appropriate, Check if a green round with a 'Check' icon appeared", () => {
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
+
+    act(() => {
+      fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
+    });
+    const validationElement = document.querySelector(".email-validation span");
+    const checkInconElement = document.querySelector(".email-validation span svg");
+    expect(validationElement).toBeInTheDocument();
+    expect(checkInconElement).toBeInTheDocument();
+    const styles = window.getComputedStyle(validationElement!);
+    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+  });
+  it("If email is appropriate, toggle 'emailIsValid' state to true, then modify email to not be valid", () => {
+    componentResult = initComponent();
+    const emailInput = document.querySelector("#email") as Element;
+    let validationElement: Element;
+    let checkInconElement: Element;
+    let styles: CSSStyleDeclaration;
+    act(() => {
+      fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
+    });
+    validationElement = document.querySelector(".email-validation span")!;
+    checkInconElement = document.querySelector(".email-validation span svg")!;
+    expect(validationElement).toBeInTheDocument();
+    expect(checkInconElement).toBeInTheDocument();
+    styles = window.getComputedStyle(validationElement!);
+    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    act(() => {
+      fireEvent.change(emailInput, { target: { value: "" } });
+    });
+    validationElement = document.querySelector(".email-validation span")!;
+    checkInconElement = document.querySelector(".email-validation span svg")!;
+    styles = window.getComputedStyle(validationElement!);
+
+    expect(checkInconElement).not.toBeInTheDocument();
+    expect(styles.backgroundColor).not.toBe("rgb(106, 255, 184)");
   });
 });
 
@@ -184,7 +250,7 @@ describe("Password input behavior are working", () => {
     expect(passwordInpInForm).toBeInTheDocument();
   });
 
-  it("Verify if the password input is on 'password' type", () => {
+  it("Password input type is 'password' by default", () => {
     const type = passwordInput?.getAttribute("type");
     expect(type).toBe("password");
   });
@@ -208,13 +274,46 @@ describe("Password input behavior are working", () => {
     });
     expect(passwordInput?.getAttribute("value")).toBe("Hello");
   });
+
+  it("Button to toggle hide password is present", () => {
+    const showPasswordBtn = document.querySelector(".show-password");
+    expect(showPasswordBtn).toBeInTheDocument();
+  });
+  it("Button to toggle hide password has yellow icon by default", () => {
+    const showPasswordBtnIcon = document.querySelector(".show-password svg path");
+    expect(showPasswordBtnIcon).toBeInTheDocument();
+    const styles = window.getComputedStyle(showPasswordBtnIcon!);
+    expect(styles.fill).toBe("var(--CTA-color)");
+  });
+  it("Press button to toggle hide password and verify that password input type has been changed into 'text'", () => {
+    const showPasswordBtn = document.querySelector(".show-password")!;
+    fireEvent.click(showPasswordBtn);
+    expect(passwordInput?.getAttribute("type")).toBe("text");
+  });
+  it("Press button to toggle hide password and verify that icon is grey", () => {
+    const showPasswordBtn = document.querySelector(".show-password")!;
+    const showPasswordBtnIcon = document.querySelector(".show-password svg path");
+    fireEvent.click(showPasswordBtn);
+    expect(passwordInput?.getAttribute("type")).toBe("text");
+    const styles = window.getComputedStyle(showPasswordBtnIcon!);
+    expect(styles.fill).toBe("var(--secondary-color)");
+  });
+  it("Press button to toggle hide password twice", () => {
+    const showPasswordBtn = document.querySelector(".show-password")!;
+    fireEvent.click(showPasswordBtn);
+    expect(passwordInput?.getAttribute("type")).toBe("text");
+    fireEvent.click(showPasswordBtn);
+    expect(passwordInput?.getAttribute("type")).toBe("password");
+  });
 });
 
 describe("Submit button behavior are working", () => {
   let hookResult: RenderHookResult<IUseLogin, unknown>;
+  let componentResult: RenderResult;
 
   afterEach(() => {
-    hookResult.unmount();
+    hookResult?.unmount();
+    componentResult?.unmount();
   });
 
   it("Submit button is present", () => {
@@ -244,6 +343,70 @@ describe("Submit button behavior are working", () => {
     expect(submitBtnLabel.textContent).toBe("Se connecter");
   });
 
+  it("Submit button is darker by default", () => {
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit") as Element;
+    const styles = window.getComputedStyle(submitBtn);
+    expect(styles.opacity).toBe("0.5");
+  });
+  it("Click to submit button when inputs are not validate is doing nothing", async () => {
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit")!;
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve({}));
+    act(() => {
+      fireEvent.click(submitBtn);
+    });
+    await waitFor(() => {});
+    expect(axios.post).toHaveBeenCalledTimes(0);
+  });
+  it("Submit button is lighter when both input are validated", () => {
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit")!;
+    const styles = window.getComputedStyle(submitBtn);
+    expect(styles.opacity).toBe("1");
+  });
+  it("There is a label inside submit button called 'Enter'", () => {
+    hookResult = initHook();
+    const pressEnterLabel = document.querySelector("#submit .login-press-enter-btn p");
+    expect(pressEnterLabel).toBeInTheDocument();
+    expect(pressEnterLabel?.textContent).toBe("Enter");
+  });
+  it("If a request is in progress, display a loader inside submit button", async () => {
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    componentResult = initComponent();
+    const submitBtn = document.querySelector("#submit")!;
+    axios.post = jest.fn().mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({}), 1000)));
+    fireEvent.click(submitBtn);
+    const submitBtnLoader = await waitFor(() => componentResult.findByTestId("login-submit-loader"));
+    expect(submitBtnLoader).toBeInTheDocument();
+  });
+
+  it("Press 'Enter' keyboard button when inputs are not validate do nothing", async () => {
+    componentResult = initComponent();
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve({}));
+    act(() => {
+      fireEvent.keyPress(window, { key: "Enter", code: "Enter", charCode: 13 });
+    });
+    await waitFor(() => {});
+    expect(axios.post).toHaveBeenCalledTimes(0);
+  });
+
+  it("Press 'Enter' keyboard button when inputs validate send a request", async () => {
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    initialState.form.emailIsValid = true;
+    componentResult = initComponent();
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve({}));
+    act(() => {
+      fireEvent.keyPress(window, { key: "Enter", code: "Enter", charCode: 13 });
+    });
+    await waitFor(() => {});
+    expect(axios.post).toHaveBeenCalledTimes(1);
+  });
+
   it("Submit button click make a login request", async () => {
     initialState.email = "test@gmail.com";
     initialState.password = "azerty123";
@@ -254,6 +417,53 @@ describe("Submit button behavior are working", () => {
     fireEvent.submit(btnSubmit);
     await waitFor(() => {});
     expect(axios.post).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Redirection to /register", () => {
+  let componentResult: RenderResult;
+
+  beforeEach(() => {
+    componentResult = initComponent();
+  });
+  afterEach(() => {
+    componentResult.unmount();
+  });
+
+  it("A text is present to go into '/Register' view", () => {
+    const goToRegisterLabel = document.querySelector(".login-no-account")!;
+    expect(goToRegisterLabel).toBeInTheDocument();
+    expect(goToRegisterLabel.textContent).toBe("Vous n'avez pas encore de compte ? C'est par ici !");
+  });
+  it("A link is present inside the text to go to '/Register' view", () => {
+    const goToRegisterLink = document.querySelector(".login-no-account a")!;
+    expect(goToRegisterLink).toBeInTheDocument();
+    const href = goToRegisterLink.getAttribute("href");
+    expect(href).toBe("/register");
+  });
+  it("When we click to the link we are redirected to '/Register' view", async () => {
+    componentResult.unmount();
+    const history = createMemoryHistory();
+    expect(history.location.pathname).toBe("/");
+
+    const { unmount } = render(
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <MemoryRouter initialEntries={["/"]}>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </MemoryRouter>
+        </Provider>
+      </QueryClientProvider>
+    );
+
+    const goToRegisterLink = document.querySelector(".login-no-account a")!;
+    expect(goToRegisterLink).toBeInTheDocument();
+    fireEvent.click(goToRegisterLink);
+    expect(screen.getByText("Register")).toBeInTheDocument();
+    unmount();
   });
 });
 
@@ -315,7 +525,7 @@ describe("Handle Login submit behavior", () => {
           <MemoryRouter initialEntries={["/"]}>
             <Routes>
               <Route path="/" element={<Login />} />
-              <Route path="/Home" element={<Home />} />
+              <Route path="/home" element={<Home />} />
             </Routes>
           </MemoryRouter>
         </Provider>
@@ -358,4 +568,48 @@ describe("Handle Login submit behavior", () => {
     await waitFor(() => {});
     screen.getByText("Une erreur est survenue. Veuillez réessayer ultérieurement.");
   });
+
+  it("If no user was found from the server, display an appropriate message", async () => {
+    initialState.email = "noUserExistWithThisEmail@gmail.com";
+    initialState.password = "azerty123";
+    initHook();
+    const btnSubmit = document.querySelector("#submit") as Element;
+    const mockedResponse = {
+      response: {
+        data: {
+          error: {
+            message: "No User found",
+            code: IErrorCode.USER_NOT_FOUND,
+            status: IStatusCode.NOT_FOUND,
+          },
+        },
+      },
+    };
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
+    fireEvent.click(btnSubmit);
+    await waitFor(() => {});
+    screen.getByText("Adresse mail incorrect.");
+  });
+});
+
+it("If password is wrong, display an appropriate message", async () => {
+  initialState.email = "test@gmail.com";
+  initialState.password = "wrong_password";
+  initHook();
+  const btnSubmit = document.querySelector("#submit") as Element;
+  const mockedResponse = {
+    response: {
+      data: {
+        error: {
+          message: "Password is invalid",
+          code: IErrorCode.INVALID_PASSWORD,
+          status: IStatusCode.BAD_REQUEST,
+        },
+      },
+    },
+  };
+  axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
+  fireEvent.click(btnSubmit);
+  await waitFor(() => {});
+  screen.getByText("Mot de passe incorrect.");
 });

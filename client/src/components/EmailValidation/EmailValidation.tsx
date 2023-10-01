@@ -5,8 +5,8 @@ import "./EmailValidation.css";
 
 const EmailValidation: FC<IEmailValidation> = (props) => {
   return (
-    <span className="email-validation">
-      <span data-email-validation={props.isValid}>{props.isValid && <Check />}</span>
+    <span className="email-validation" data-testid="email-validation">
+      <span data-email-validation={props.isValid.toString()}>{props.isValid && <Check />}</span>
     </span>
   );
 };

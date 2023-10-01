@@ -95,7 +95,6 @@ export const useLogin = () => {
    * @returns {void}
    */
   const handleError = (error: IError): void => {
-    console.log(error);
     const payload: IState = {
       ...state,
       error,
@@ -113,7 +112,6 @@ export const useLogin = () => {
    * @returns {void}
    */
   const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
-    console.log(state);
     e?.preventDefault();
     if (!state.email || !state.password || !state.form.emailIsValid) return;
     mutation.mutate();

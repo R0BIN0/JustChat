@@ -1,6 +1,6 @@
-import { IUser } from "IUser";
 import axios from "axios";
 import { tryCatch } from "../../utils/tryCatch";
+import { IUser } from "../IUser";
 
 const LOCAL_ROUTE = "http://localhost:8000/api/v1";
 

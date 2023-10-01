@@ -4,6 +4,7 @@ import { IErrorCode } from "../../apis/IErrorCode";
 import Input from "../../components/Input/Input";
 import EmailValidation from "../../components/EmailValidation/EmailValidation";
 import HidePassword from "../../components/HidePassword/HidePassword";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const logic = useLogin();
@@ -52,7 +53,7 @@ const Login = () => {
           <div className="login-submit-container">
             <button id="submit" type="submit" data-form-validity={formIsValid}>
               {logic.mutation.isLoading ? (
-                <div className="login-submit-loader"></div>
+                <div data-testid="login-submit-loader" className="login-submit-loader"></div>
               ) : (
                 <>
                   <p>Se connecter</p>
@@ -66,7 +67,7 @@ const Login = () => {
             </button>
           </div>
           <p className="login-no-account">
-            Vous n'avez pas encore de compte ? <a href="/register">C'est par ici !</a>
+            Vous n'avez pas encore de compte ? <Link to="/register">C'est par ici !</Link>
           </p>
           <div className="login-errors-container">
             {isUnexcpectedError && (

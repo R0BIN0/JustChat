@@ -23,7 +23,7 @@
 .login-content-isLoading .login-form fieldset,
 .login-content-isLoading .login-no-account,
 .login-content-isLoading .login-errors-container {
-  opacity: 50%;
+  opacity: 0.5;
   pointer-events: none;
 }
 .login-title-container {
@@ -87,7 +87,7 @@
   padding: 1rem;
   border-radius: 4px;
   font-weight: 700;
-  opacity: 50%;
+  opacity: 0.5;
   transition: 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
   position: relative;
 }
@@ -199,7 +199,7 @@
 /* Form validity */
 
 .login-submit-container button[data-form-validity~="true"] {
-  opacity: 100%;
+  opacity: 1;
   box-shadow: 0px 4px 13px 3px rgba(209, 203, 50, 0.25);
 }
 
