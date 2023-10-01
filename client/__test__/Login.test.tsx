@@ -4,17 +4,17 @@ import store from "../src/redux/store";
 export const queryClient = new QueryClient();
 
 import { Provider } from "react-redux";
-import Login from "../src/components/Login/Login";
+import Login from "../src/views/Login/Login";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
-import { useLogin } from "../src/components/Login/Login.logic";
-import { initialState } from "../src/components/Login/Login.reducer";
+import { useLogin } from "../src/views/Login/Login.logic";
+import { IState, initialState } from "../src/views/Login/Login.reducer";
 import React from "react";
 import { act } from "react-dom/test-utils";
 import axios from "axios";
 import { login } from "../src/apis/actions/UserAction";
 import { vi as jest } from "vitest";
 import { createMemoryHistory } from "history";
-import Home from "../src/components/Home/Home";
+import Home from "../src/views/Home/Home";
 
 export type IUseLogin = ReturnType<typeof useLogin>;
 type IChildren = {
@@ -66,8 +66,10 @@ describe("Hook mount/unmount correctly", () => {
     expect(hookResult.result.current.state).toEqual({
       email: "",
       password: "",
-      error: {
-        message: "",
+      error: undefined,
+      form: {
+        passwordIsHidden: true,
+        emailIsValid: false,
       },
     });
   });
@@ -78,11 +80,18 @@ describe("Hook mount/unmount correctly", () => {
   });
 
   it("Verify that the initial state is correctly cleaned after the hook is unmounted", () => {
+    console.log(initialState, "INITIAL STATE");
     initialState.email = "test@gmail.com";
     hookResult = initHook();
     expect(hookResult.result.current.state.email).toBe("test@gmail.com");
     hookResult.unmount();
-    expect(initialState.email).toBe("");
+    const expectedResponse: IState = {
+      email: "",
+      password: "",
+      error: undefined,
+      form: { passwordIsHidden: true, emailIsValid: false },
+    };
+    expect(initialState).toStrictEqual(expectedResponse);
   });
 });
 
@@ -124,13 +133,6 @@ describe("Email input behavior are working", () => {
   it("The input is a child of a form", () => {
     const emailInpInForm = document.querySelector(".login-form #email");
     expect(emailInpInForm).toBeInTheDocument();
-  });
-
-  it("The input has a corresponding label", () => {
-    const emailLabel = screen.getByText("Email");
-    expect(emailLabel).toBeInTheDocument();
-    const htmlFor = emailLabel.getAttribute("for");
-    expect(htmlFor).toBe("email");
   });
 
   it("Verify if the email input is on 'text' type", () => {
@@ -182,13 +184,6 @@ describe("Password input behavior are working", () => {
     expect(passwordInpInForm).toBeInTheDocument();
   });
 
-  it("The input has a corresponding label", () => {
-    const passwordLabel = screen.getByText("Mot de passe");
-    expect(passwordLabel).toBeInTheDocument();
-    const htmlFor = passwordLabel.getAttribute("for");
-    expect(htmlFor).toBe("password");
-  });
-
   it("Verify if the password input is on 'password' type", () => {
     const type = passwordInput?.getAttribute("type");
     expect(type).toBe("password");
@@ -217,33 +212,36 @@ describe("Password input behavior are working", () => {
 
 describe("Submit button behavior are working", () => {
   let hookResult: RenderHookResult<IUseLogin, unknown>;
-  let submitBtn: Element | undefined;
-
-  beforeEach(() => {
-    hookResult = initHook();
-    submitBtn = document.querySelector("#submit") as Element;
-  });
 
   afterEach(() => {
-    hookResult?.unmount();
-    submitBtn = undefined;
+    hookResult.unmount();
   });
 
   it("Submit button is present", () => {
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit") as Element;
     expect(submitBtn).toBeInTheDocument();
   });
   it("The button is a child of a form", () => {
+    hookResult = initHook();
     const submitBtnInForm = document.querySelector(".login-form #submit");
     expect(submitBtnInForm).toBeInTheDocument();
   });
 
   it("The submit button has 'submit' as type attribute", () => {
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit") as Element;
     const type = submitBtn?.getAttribute("type");
     expect(type).toBe("submit");
   });
 
   it("Submit button label is good", () => {
-    expect(submitBtn?.textContent).toBe("Se Connecter");
+    hookResult = initHook();
+    const submitBtn = document.querySelector("#submit") as Element;
+    expect(submitBtn).toBeInTheDocument();
+    const submitBtnLabel = document.querySelector("#submit p") as Element;
+    expect(submitBtnLabel).toBeInTheDocument();
+    expect(submitBtnLabel.textContent).toBe("Se connecter");
   });
 
   it("Submit button click make a login request", async () => {
@@ -253,7 +251,7 @@ describe("Submit button behavior are working", () => {
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = { data: { token: "TOKEN" } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
-    fireEvent.click(btnSubmit);
+    fireEvent.submit(btnSubmit);
     await waitFor(() => {});
     expect(axios.post).toHaveBeenCalledTimes(1);
   });
@@ -275,11 +273,8 @@ describe("Handle Login submit behavior", () => {
   it("Simulate success login request", async () => {
     const email = "test@gmail.com";
     const password = "azerty123";
-
     const mockedResponse = { data: { token: "TOKEN" } };
-
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
-
     const data = await login({ email, password });
     expect(data).toStrictEqual({ token: "TOKEN" });
   });
@@ -287,13 +282,13 @@ describe("Handle Login submit behavior", () => {
   it("Simulate bad login request", async () => {
     const email = "";
     const password = "";
-    const mockedResponse = new Error("API FAIL");
+    const mockedResponse = new Error("Unexpected Error !");
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
-    await expect(login({ email, password })).rejects.toThrow("API FAIL");
+    await expect(login({ email, password })).rejects.toThrow(
+      "Une erreur est survenue. Veuillez réessayer ultérieurement."
+    );
   });
 
-  it("Do not fill 'email' input should display an appropriate error", () => {});
-  it("Do not fill 'password' input should display an appropriate error", () => {});
   it("If the reponse is good from the server. Dispatch infos to store", async () => {
     initialState.email = "test@gmail.com";
     initialState.password = "azerty123";
@@ -352,15 +347,15 @@ describe("Handle Login submit behavior", () => {
     expect(isAuthenticated).toBeFalsy();
     expect(token).toBeUndefined();
   });
-  it("If the response is wrong from the server. Display an error message", async () => {
+  it("If we received an Unexpected error from the server. Display an error message", async () => {
     initialState.email = "test@gmail.com";
     initialState.password = "azerty123";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = new Error("API FAIL");
+    const mockedResponse = new Error("Server crashed");
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    screen.getByText("API FAIL");
+    screen.getByText("Une erreur est survenue. Veuillez réessayer ultérieurement.");
   });
 });

@@ -1,0 +1,232 @@
+.login-container {
+  width: 100%;
+  height: 100vh;
+  background: var(--primary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.login-content {
+  z-index: 1;
+  width: 100%;
+  padding: 0 2rem;
+  max-width: 768px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+}
+
+.login-content-isLoading .login-title-container,
+.login-content-isLoading .login-form fieldset,
+.login-content-isLoading .login-no-account,
+.login-content-isLoading .login-errors-container {
+  opacity: 50%;
+  pointer-events: none;
+}
+.login-title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+  margin-bottom: 2.25rem;
+  text-align: center;
+}
+.login-title-container h1 {
+  color: var(--title-color);
+  font-size: 2.5em;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+.login-title-container h2 {
+  color: var(--subtitle-color);
+  max-width: 275px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.login-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+  width: 100%;
+  position: relative;
+}
+.login-form fieldset {
+  width: 100%;
+  max-width: 425px;
+}
+.login-form fieldset div {
+  width: 100%;
+  background: var(--primary-color);
+  position: relative;
+}
+
+.login-form fieldset div:first-child {
+  margin-bottom: 1rem;
+}
+
+.login-submit-container {
+  background-color: rgb(0, 0, 0);
+  width: 100%;
+  max-width: 475px;
+  margin-top: 2.5rem;
+  border-radius: 4px;
+}
+
+.login-submit-container button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--CTA-color);
+  color: var(--primary-color);
+  padding: 1rem;
+  border-radius: 4px;
+  font-weight: 700;
+  opacity: 50%;
+  transition: 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  position: relative;
+}
+
+.login-press-enter-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(-40%, -50%);
+  padding: 0.25rem 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-press-enter-btn div:nth-child(1) {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: var(--CTA-color);
+  z-index: 1;
+  border: 1px solid var(--primary-color);
+  border-radius: 3px;
+}
+
+.login-press-enter-btn div:nth-child(2) {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform: translateY(3px);
+  z-index: 0;
+  border: 1px solid var(--secondary-color);
+  border-radius: 3px;
+}
+
+.login-press-enter-btn p {
+  font-weight: 500;
+  font-size: 0.85em;
+  z-index: 2;
+}
+
+.login-submit-loader {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #777a91;
+  border-radius: 50%;
+  border-right-color: var(--primary-color);
+  animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.login-no-account {
+  margin-top: 3rem;
+  font-size: 0.85em;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.login-no-account a {
+  color: var(--title-color);
+  text-decoration: underline;
+}
+
+.login-errors-container {
+  margin-top: 2rem;
+  position: absolute;
+  bottom: -80px;
+  font-size: 0.9em;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-flow: column nowrap;
+  color: var(--error-color);
+  padding: 0 1.5rem;
+  line-height: 1.5;
+}
+
+.login-unexcpected-error {
+  margin-bottom: 0.75rem;
+  position: relative;
+  display: none;
+}
+
+.login-unexcpected-error[data-unexcpected-error~="true"] {
+  display: initial;
+}
+
+.login-error-message {
+  position: relative;
+  display: none;
+}
+
+/* Has error */
+
+.login-form fieldset div p {
+  color: var(--error-color);
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  transform: translate(100%, -50%);
+  font-size: 0.9em;
+}
+
+/* Form validity */
+
+.login-submit-container button[data-form-validity~="true"] {
+  opacity: 100%;
+  box-shadow: 0px 4px 13px 3px rgba(209, 203, 50, 0.25);
+}
+
+@media screen and (max-width: 800px) {
+  .login-form fieldset div p {
+    display: none;
+  }
+
+  .login-error-message[data-has-error~="true"] {
+    display: initial;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .login-container {
+    font-size: 0.9em;
+  }
+
+  .login-content {
+    padding: 0 1.5rem;
+  }
+
+  .login-press-enter-btn {
+    display: none;
+  }
+
+  .login-errors-container {
+    bottom: -100px;
+  }
+}

@@ -1,0 +1,23 @@
+.form-input {
+  width: 100%;
+  height: 100%;
+  padding: 1rem 60px 1rem 1.25rem;
+  border: 1px solid var(--secondary-color);
+  border-radius: 4px;
+  background: var(--primary-color);
+  color: white;
+}
+
+.form-input::placeholder {
+  color: var(--text-color);
+}
+
+.form-input[data-error~="true"] {
+  width: 100%;
+  border: 1px solid var(--error-color);
+  background: var(--error-color-o10);
+}
+
+.form-input[data-error~="true"]::placeholder {
+  color: var(--error-color);
+}

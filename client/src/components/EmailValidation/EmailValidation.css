@@ -1,0 +1,30 @@
+.email-validation {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.email-validation span {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--secondary-color);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.email-validation span svg {
+  width: 10px;
+  height: 10px;
+}
+
+.email-validation span[data-email-validation~="true"] {
+  border: 1px solid #6cc0ac;
+  background: #6affb8;
+}
