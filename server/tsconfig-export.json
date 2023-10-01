@@ -1,20 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "checkJs": false,
-    "noUncheckedIndexedAccess": true,
-    "useUnknownInCatchVariables": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["es2020"],
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outFile": "dist/export-api-types.ts"
+    "target": "ESNext",
+    "module": "CommonJS",
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "outDir": "./dist",
+    "strict": true
   },
-  "files": ["./src/types/index.ts"]
+  "include": ["src/types/**/*"]
 }

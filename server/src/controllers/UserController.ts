@@ -5,7 +5,7 @@ import { IUser } from "../types/IUser.js";
 import { IStatusCode } from "../types/IStatusCode.js";
 import { tryCatch } from "../utils/tryCatch.js";
 import { AppError } from "../utils/AppError.js";
-import { IErrorCode } from "../types/IErrroCode.js";
+import { IErrorCode } from "../types/IErrorCode.js";
 
 export const register = async (req: Request<{}, any, IUser>, res: Response<{ status: IStatusCode }>) => {
   const { name, email, password } = req.body;

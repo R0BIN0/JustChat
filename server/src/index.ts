@@ -1,7 +1,6 @@
 import { config } from "dotenv";
 import { connectedDB } from "./config/db.js";
 import app from "./app.js";
-import { errorHandler } from "./middleware/errorHandler.js";
 
 config();
 connectedDB();

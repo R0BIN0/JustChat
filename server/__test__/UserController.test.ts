@@ -3,7 +3,7 @@ import app from "../src/app.js";
 import { User } from "../src/models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IErrorCode } from "../src/types/IErrroCode.js";
+import { IErrorCode } from "../src/types/IErrorCode.js";
 import { IStatusCode } from "../src/types/IStatusCode.js";
 
 const mockedUser = {

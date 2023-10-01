@@ -1,4 +1,4 @@
-import { IErrorCode } from "../types/IErrroCode.js";
+import { IErrorCode } from "../types/IErrorCode.js";
 import { IStatusCode } from "../types/IStatusCode.js";
 
 export class AppError extends Error {

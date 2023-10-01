@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "server": "concurrently \"tsc -w\" \"nodemon dist/src/index\"",
-    "generate-types": "tsc -p tsconfig-export.json && cp ./dist/export-api-types.d.ts ../client/src/apis/types.d.ts"
+    "generate-types": "cp src/types/*.ts ../client/src/apis/"
   },
   "keywords": [],
   "author": "",

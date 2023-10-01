@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IStatusCode } from "../types/IStatusCode.js";
 import { AppError } from "../utils/AppError.js";
-import { IErrorCode } from "../types/IErrroCode.js";
+import { IErrorCode } from "../types/IErrorCode.js";
 
 export const errorHandler = (
   error: any,
