@@ -94,7 +94,6 @@ video {
   padding: 0;
   border: 0;
   font-size: 100%;
-  font: inherit;
   vertical-align: baseline;
 }
 article,
@@ -170,5 +169,5 @@ input::placeholder {
 body {
   line-height: 1;
   font-family: "Onest", sans-serif;
-  overflow: hidden;
+  /* overflow: hidden; */
 }

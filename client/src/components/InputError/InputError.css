@@ -1,0 +1,11 @@
+.input-error {
+  color: var(--error-color);
+  font-size: 0.9em;
+  text-align: center;
+}
+
+@media screen and (max-width: 500px) {
+  .input-error {
+    font-size: 0.85em;
+  }
+}

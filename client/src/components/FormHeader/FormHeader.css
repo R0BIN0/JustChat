@@ -1,0 +1,20 @@
+.formHeader-title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+  margin-bottom: 2.25rem;
+  text-align: center;
+}
+.formHeader-title-container h1 {
+  color: var(--title-color);
+  font-size: 2.5em;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+.formHeader-title-container h2 {
+  color: var(--subtitle-color);
+  max-width: 275px;
+  text-align: center;
+  line-height: 1.6;
+}

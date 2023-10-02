@@ -18,21 +18,26 @@ export const catchError = (err: any): IError => {
 };
 
 const getMessageError = (err: IErrorCode): string => {
-  const defaultMessage = "Une erreur est survenue. Veuillez réessayer ultérieurement.";
-  let message = defaultMessage;
   switch (err) {
     case IErrorCode.EMPTY_INPUT:
-      message = "Le formulaire que vous avez envoyé est incorrect.";
-      break;
+      return "Le formulaire que vous avez envoyé est incorrect.";
     case IErrorCode.USER_NOT_FOUND:
-      message = "Adresse mail incorrect.";
-      break;
+      return "Adresse mail incorrect.";
     case IErrorCode.INVALID_PASSWORD:
-      message = "Mot de passe incorrect.";
-      break;
+      return "Mot de passe incorrect.";
     case IErrorCode.CANNOT_GET_JWT_TOKEN:
-      message = "Impossible de vous authentifier. Réessayer ultérieurement.";
-      break;
+      return "Impossible de vous authentifier. Réessayer ultérieurement.";
+    case IErrorCode.CANNOT_CONFIRM_PASSWORD:
+      return "La confirmation de vos mots de passe est invalide.";
+    case IErrorCode.CANNOT_CREATE_USER:
+      return "Impossible de créer l'utilisateur. Veuillez réessayer plus tard.";
+    case IErrorCode.NAME_ALREADY_USED:
+      return "Ce nom d'utilisateur est déjà utilisé.";
+    case IErrorCode.SAME_EMAIL:
+      return "Cet email est déjà utilisé.";
+    case IErrorCode.WRONG_MAIL_FORMAT:
+      return "Votre adresse mail est invalide";
+    default:
+      return "Une erreur est survenue. Veuillez réessayer ultérieurement.";
   }
-  return message;
 };

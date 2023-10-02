@@ -19,6 +19,26 @@ export const errorHandler = (
     });
   }
 
+  if (error.code === 11000) {
+    return res.status(IStatusCode.BAD_REQUEST).json({
+      error: {
+        message: error.message,
+        code: IErrorCode.SAME_EMAIL,
+        status: IStatusCode.BAD_REQUEST,
+      },
+    });
+  }
+
+  if (error.name === "ValidationError") {
+    return res.status(IStatusCode.BAD_REQUEST).json({
+      error: {
+        message: error.message,
+        code: IErrorCode.WRONG_MAIL_FORMAT,
+        status: IStatusCode.BAD_REQUEST,
+      },
+    });
+  }
+
   return res.status(IStatusCode.BAD_REQUEST).json({
     error: {
       message: error.message,

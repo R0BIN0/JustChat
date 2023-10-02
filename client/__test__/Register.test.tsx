@@ -4,41 +4,42 @@ import { IStore, initStore } from "../src/redux/store";
 export const queryClient = new QueryClient();
 
 import { Provider } from "react-redux";
-import Login from "../src/views/Form/Login/Login";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
-import { useLogin } from "../src/views/Form/Login/Login.logic";
-import { IState, initialState } from "../src/views/Form/Login/Login.reducer";
+
 import React from "react";
 import { act } from "react-dom/test-utils";
 import axios from "axios";
-import { login } from "../src/apis/actions/UserAction";
+
 import { vi as jest } from "vitest";
-import { createMemoryHistory } from "history";
 import Home from "../src/views/Home/Home";
 import Register from "../src/views/Form/Register/Register";
+import { useRegister } from "../src/views/Form/Register/Register.logic";
+import { IState, initialState } from "../src/views/Form/Register/Register.reducer";
+import { register } from "../src/apis/actions/UserAction";
+import Login from "../src/views/Form/Login/Login";
 import { IErrorCode } from "../src/apis/IErrorCode";
 import { IStatusCode } from "../src/apis/IStatusCode";
 
 let store: IStore;
-export type IUseLogin = ReturnType<typeof useLogin>;
+export type IUseRegister = ReturnType<typeof useRegister>;
 type IChildren = {
   children: React.ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
 };
 
-const initHook = (): RenderHookResult<IUseLogin, unknown> => {
+const initHook = (): RenderHookResult<IUseRegister, unknown> => {
   store = initStore();
   const wrapper = ({ children }: IChildren) => (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <MemoryRouter initialEntries={["/"]}>
-          <Login />
+        <MemoryRouter initialEntries={["/register"]}>
+          <Register />
           {children}
         </MemoryRouter>
       </Provider>
     </QueryClientProvider>
   );
 
-  return renderHook(() => useLogin(), { wrapper });
+  return renderHook(() => useRegister(), { wrapper });
 };
 
 const initComponent = (): RenderResult => {
@@ -48,7 +49,7 @@ const initComponent = (): RenderResult => {
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <BrowserRouter>
-          <Login />
+          <Register />
         </BrowserRouter>
       </Provider>
     </QueryClientProvider>
@@ -56,7 +57,7 @@ const initComponent = (): RenderResult => {
 };
 
 describe("Hook mount/unmount correctly", () => {
-  let hookResult: RenderHookResult<IUseLogin, unknown>;
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
 
   afterEach(() => hookResult.unmount());
 
@@ -72,8 +73,10 @@ describe("Hook mount/unmount correctly", () => {
   it("The initial state values of the hook is right", () => {
     hookResult = initHook();
     expect(hookResult.result.current.state).toEqual({
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       error: undefined,
       form: {
         passwordIsHidden: true,
@@ -93,10 +96,15 @@ describe("Hook mount/unmount correctly", () => {
     expect(hookResult.result.current.state.email).toBe("test@gmail.com");
     hookResult.unmount();
     const expectedResponse: IState = {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       error: undefined,
-      form: { passwordIsHidden: true, emailIsValid: false },
+      form: {
+        passwordIsHidden: true,
+        emailIsValid: false,
+      },
     };
     expect(initialState).toStrictEqual(expectedResponse);
   });
@@ -125,23 +133,89 @@ describe("Global page elements are good", () => {
   beforeEach(() => (componentResult = initComponent()));
   afterEach(() => componentResult.unmount());
 
-  it("Title corresponding to 'Se connecter'", () => {
+  it("Title corresponding to 'S'enregistrer'", () => {
     const title = document.querySelector("h1");
     expect(title).toBeInTheDocument();
-    expect(title?.textContent).toBe("Se connecter");
+    expect(title?.textContent).toBe("S'enregistrer");
   });
-  it("Subtitle corresponding to 'Connectez-vous pour chatter avec n’importe qui, n’importe où !'", () => {
+  it("Subtitle corresponding to 'Profitez d'une expérience de chat simple et intuitive !'", () => {
     const subtitle = document.querySelector("h2");
     expect(subtitle).toBeInTheDocument();
-    expect(subtitle?.textContent).toBe("Connectez-vous pour chatter avec n’importe qui, n’importe où !");
+    expect(subtitle?.textContent).toBe("Profitez d'une expérience de chat simple et intuitive !");
   });
 });
 
-describe("Email input behavior are working", () => {
-  let hookResult: RenderHookResult<IUseLogin, unknown>;
+describe("Name input behaviors are working", () => {
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
   let componentResult: RenderResult;
 
-  beforeEach(() => {});
+  afterEach(() => {
+    hookResult?.unmount();
+    componentResult?.unmount();
+  });
+
+  it("Verify if the input is present", () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    expect(nameInput).toBeInTheDocument();
+  });
+
+  it("The input is a child of a form", () => {
+    componentResult = initComponent();
+    const nameInpInForm = document.querySelector(".form-form #name");
+    expect(nameInpInForm).toBeInTheDocument();
+  });
+
+  it("Verify if the name input is on 'text' type", () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    const type = nameInput?.getAttribute("type");
+    expect(type).toBe("text");
+  });
+
+  it("Verify if the name input placeHolder is 'Nom d'utilisateur'", () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    const placeholder = nameInput.getAttribute("placeholder");
+    expect(placeholder).toBe("Nom d'utilisateur");
+  });
+
+  it("Verify initial values of the input", () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    const value = nameInput.getAttribute("value");
+    const content = nameInput.textContent;
+    expect(value).toBe("");
+    expect(content).toBe("");
+  });
+
+  it("Trigger the onChange is working", async () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    act(() => {
+      fireEvent.change(nameInput, { target: { value: "Robin" } });
+    });
+    expect(nameInput?.getAttribute("value")).toBe("Robin");
+  });
+
+  it("If name is appropriate, Check if a green round with a 'Check' icon appeared", () => {
+    componentResult = initComponent();
+    const nameInput = document.querySelector("#name") as Element;
+    act(() => {
+      fireEvent.change(nameInput, { target: { value: "Robin" } });
+    });
+    const validationElement = [...document.querySelectorAll(".email-validation span")][0];
+    const checkInconElement = document.querySelector(".email-validation span svg");
+    expect(validationElement).toBeInTheDocument();
+    expect(checkInconElement).toBeInTheDocument();
+    const styles = window.getComputedStyle(validationElement!);
+    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+  });
+});
+
+describe("Email input behaviors are working", () => {
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
+  let componentResult: RenderResult;
 
   afterEach(() => {
     hookResult?.unmount();
@@ -191,6 +265,7 @@ describe("Email input behavior are working", () => {
     });
     expect(emailInput?.getAttribute("value")).toBe("Hello");
   });
+
   it("If email is appropriate, Check if a green round with a 'Check' icon appeared", () => {
     componentResult = initComponent();
     const emailInput = document.querySelector("#email") as Element;
@@ -198,7 +273,7 @@ describe("Email input behavior are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    const validationElement = document.querySelector(".email-validation span");
+    const validationElement = [...document.querySelectorAll(".email-validation span")][1];
     const checkInconElement = document.querySelector(".email-validation span svg");
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
@@ -214,7 +289,7 @@ describe("Email input behavior are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    validationElement = document.querySelector(".email-validation span")!;
+    validationElement = [...document.querySelectorAll(".email-validation span")][1];
     checkInconElement = document.querySelector(".email-validation span svg")!;
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
@@ -223,17 +298,16 @@ describe("Email input behavior are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "" } });
     });
-    validationElement = document.querySelector(".email-validation span")!;
+    validationElement = [...document.querySelectorAll(".email-validation span")][1];
     checkInconElement = document.querySelector(".email-validation span svg")!;
     styles = window.getComputedStyle(validationElement!);
-
     expect(checkInconElement).not.toBeInTheDocument();
     expect(styles.backgroundColor).not.toBe("rgb(106, 255, 184)");
   });
 });
 
-describe("Password input behavior are working", () => {
-  let hookResult: RenderHookResult<IUseLogin, unknown>;
+describe("Password input behaviors are working", () => {
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
   let passwordInput: Element | undefined;
 
   beforeEach(() => {
@@ -312,8 +386,57 @@ describe("Password input behavior are working", () => {
   });
 });
 
+describe("ConfirmPassword input behaviors are working", () => {
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
+  let confirmPasswordInput: Element | undefined;
+
+  beforeEach(() => {
+    hookResult = initHook();
+    confirmPasswordInput = document.querySelector("#confirmPassword") as Element;
+  });
+
+  afterEach(() => {
+    hookResult.unmount();
+    confirmPasswordInput = undefined;
+  });
+
+  it("Verify if the input is present", () => {
+    expect(confirmPasswordInput).toBeInTheDocument();
+  });
+
+  it("The input is a child of a form", () => {
+    const confirmPasswordInpInForm = document.querySelector(".form-form #confirmPassword");
+    expect(confirmPasswordInpInForm).toBeInTheDocument();
+  });
+
+  it("Password input type is 'password' by default", () => {
+    const type = confirmPasswordInput?.getAttribute("type");
+    expect(type).toBe("password");
+  });
+
+  it("Verify if the password input placeHolder is 'Confirmer le mot de passe'", () => {
+    const placeholder = confirmPasswordInput?.getAttribute("placeholder");
+    expect(placeholder).toBe("Confirmer le mot de passe");
+  });
+
+  it("Verify initial values of the input", () => {
+    const value = confirmPasswordInput?.getAttribute("value");
+    const content = confirmPasswordInput?.textContent;
+    expect(value).toBe("");
+    expect(content).toBe("");
+  });
+
+  it("Trigger the onChange is working", async () => {
+    act(() => {
+      if (!confirmPasswordInput) return;
+      fireEvent.change(confirmPasswordInput, { target: { value: "azerty" } });
+    });
+    expect(confirmPasswordInput?.getAttribute("value")).toBe("azerty");
+  });
+});
+
 describe("Submit button behavior are working", () => {
-  let hookResult: RenderHookResult<IUseLogin, unknown>;
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
   let componentResult: RenderResult;
 
   afterEach(() => {
@@ -345,7 +468,7 @@ describe("Submit button behavior are working", () => {
     expect(submitBtn).toBeInTheDocument();
     const submitBtnLabel = document.querySelector("#submit p") as Element;
     expect(submitBtnLabel).toBeInTheDocument();
-    expect(submitBtnLabel.textContent).toBe("Se connecter");
+    expect(submitBtnLabel.textContent).toBe("S'enregistrer");
   });
 
   it("Submit button is darker by default", () => {
@@ -364,9 +487,11 @@ describe("Submit button behavior are working", () => {
     await waitFor(() => {});
     expect(axios.post).toHaveBeenCalledTimes(0);
   });
-  it("Submit button is lighter when both input are validated", () => {
+  it("Submit button is lighter when all inputes are validated", () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
     initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     hookResult = initHook();
     const submitBtn = document.querySelector("#submit")!;
     const styles = window.getComputedStyle(submitBtn);
@@ -379,8 +504,10 @@ describe("Submit button behavior are working", () => {
     expect(pressEnterLabel?.textContent).toBe("Enter");
   });
   it("If a request is in progress, display a loader inside submit button", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
     initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     componentResult = initComponent();
     const submitBtn = document.querySelector("#submit")!;
     axios.post = jest.fn().mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({}), 1000)));
@@ -400,8 +527,10 @@ describe("Submit button behavior are working", () => {
   });
 
   it("Press 'Enter' keyboard button when inputs validate send a request", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
     initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     initialState.form.emailIsValid = true;
     componentResult = initComponent();
     axios.post = jest.fn().mockImplementation(() => Promise.resolve({}));
@@ -412,12 +541,14 @@ describe("Submit button behavior are working", () => {
     expect(axios.post).toHaveBeenCalledTimes(1);
   });
 
-  it("Submit button click make a login request", async () => {
+  it("Submit button click make a register request", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
-    initialState.password = "azerty123";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     hookResult = initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN" } };
+    const mockedResponse = { data: {} };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.submit(btnSubmit);
     await waitFor(() => {});
@@ -425,7 +556,7 @@ describe("Submit button behavior are working", () => {
   });
 });
 
-describe("Redirection to /register", () => {
+describe("Redirection to /login", () => {
   let componentResult: RenderResult;
 
   beforeEach(() => {
@@ -435,45 +566,44 @@ describe("Redirection to /register", () => {
     componentResult.unmount();
   });
 
-  it("A text is present to go into '/Register' view", () => {
-    const goToRegisterLabel = document.querySelector(".form-redirection")!;
-    expect(goToRegisterLabel).toBeInTheDocument();
-    expect(goToRegisterLabel.textContent).toBe("Vous n'avez pas encore de compte ? C'est par ici !");
+  it("A text is present to go into '/Login' view", () => {
+    const goToLoginLabel = document.querySelector(".form-redirection")!;
+    expect(goToLoginLabel).toBeInTheDocument();
+    expect(goToLoginLabel.textContent).toBe("Vous avez déjà un compte ? Connectez-vous !");
   });
-  it("A link is present inside the text to go to '/Register' view", () => {
-    const goToRegisterLink = document.querySelector(".form-redirection a")!;
-    expect(goToRegisterLink).toBeInTheDocument();
-    const href = goToRegisterLink.getAttribute("href");
-    expect(href).toBe("/register");
+  it("A link is present inside the text to go to '/Login' view", () => {
+    const goToLoginLink = document.querySelector(".form-redirection a")!;
+    expect(goToLoginLink).toBeInTheDocument();
+    const href = goToLoginLink.getAttribute("href");
+    expect(href).toBe("/");
   });
-  it("When we click to the link we are redirected to '/Register' view", async () => {
+  it("When we click to the link we are redirected to '/Login' view", async () => {
     componentResult.unmount();
-
     const { unmount } = render(
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
-          <MemoryRouter initialEntries={["/"]}>
+          <MemoryRouter initialEntries={["/register"]}>
             <Routes>
-              <Route path="/" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/" element={<Login />} />
             </Routes>
           </MemoryRouter>
         </Provider>
       </QueryClientProvider>
     );
 
-    const goToRegisterLink = document.querySelector(".form-redirection a")!;
-    expect(goToRegisterLink).toBeInTheDocument();
-    fireEvent.click(goToRegisterLink);
+    const goToLoginLink = document.querySelector(".form-redirection a")!;
+    expect(goToLoginLink).toBeInTheDocument();
+    fireEvent.click(goToLoginLink);
     const registerViewTitle = document.querySelector(".formHeader-title-container h1");
-    expect(registerViewTitle?.textContent).toBe("S'enregistrer");
+    expect(registerViewTitle?.textContent).toBe("Se connecter");
     unmount();
   });
 });
 
 describe("Handle Login submit behavior", () => {
   let componentResult: RenderResult;
-  let hookResult: RenderHookResult<IUseLogin, unknown>;
+  let hookResult: RenderHookResult<IUseRegister, unknown>;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -489,7 +619,7 @@ describe("Handle Login submit behavior", () => {
     const password = "azerty123";
     const mockedResponse = { data: { token: "TOKEN" } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
-    const data = await login({ email, password });
+    const data = await register({ email, password });
     expect(data).toStrictEqual({ token: "TOKEN" });
   });
 
@@ -498,37 +628,41 @@ describe("Handle Login submit behavior", () => {
     const password = "";
     const mockedResponse = new Error("Unexpected Error !");
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
-    await expect(login({ email, password })).rejects.toThrow(
+    await expect(register({ email, password })).rejects.toThrow(
       "Une erreur est survenue. Veuillez réessayer ultérieurement."
     );
   });
 
   it("If the reponse is good from the server. Dispatch infos to store", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
-    initialState.password = "azerty123";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN" } };
+    const mockedResponse = { data: { token: "TOKEN", user: { name: "Robin", email: "test@gmail.com" } } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     const { isAuthenticated, token } = store.getState().auth;
     expect(isAuthenticated).toBeTruthy();
     expect(token).toStrictEqual("TOKEN");
+    const user = store.getState().user;
+    expect(user).toStrictEqual({ name: "Robin", email: "test@gmail.com" });
   });
 
   it("If the reponse is good from the server. The user is redirected to '/Home' path", async () => {
-    const history = createMemoryHistory();
-    expect(history.location.pathname).toBe("/");
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
-    initialState.password = "azerty123";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
 
     const { unmount } = render(
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
-          <MemoryRouter initialEntries={["/"]}>
+          <MemoryRouter initialEntries={["/register"]}>
             <Routes>
-              <Route path="/" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/home" element={<Home />} />
             </Routes>
           </MemoryRouter>
@@ -537,7 +671,7 @@ describe("Handle Login submit behavior", () => {
     );
 
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN" } };
+    const mockedResponse = { data: { token: "TOKEN", user: { name: "Robin", email: "test@gmail.com" } } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
@@ -545,25 +679,32 @@ describe("Handle Login submit behavior", () => {
     unmount();
   });
   it("If the reponse is wrong from the server. Dispatch infos to store", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
-    initialState.password = "azerty123";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = {
       data: { error: { message: "Something went wrong" } },
       status: 404,
     };
-
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
     const { isAuthenticated, token } = store.getState().auth;
     expect(isAuthenticated).toBeFalsy();
     expect(token).toBeUndefined();
+    const user = store.getState().user;
+    expect(user.name).toBe("");
+    expect(user.email).toBe("");
   });
+
   it("If we received an Unexpected error from the server. Display an error message", async () => {
+    initialState.name = "Robin";
     initialState.email = "test@gmail.com";
-    initialState.password = "azerty123";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = new Error("Server crashed");
@@ -573,18 +714,20 @@ describe("Handle Login submit behavior", () => {
     screen.getByText("Une erreur est survenue. Veuillez réessayer ultérieurement.");
   });
 
-  it("If no user was found from the server, display an appropriate message", async () => {
-    initialState.email = "noUserExistWithThisEmail@gmail.com";
-    initialState.password = "azerty123";
+  it("If a player with this name already exist. Send an appropriate error message", async () => {
+    initialState.name = "Robin";
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
     const mockedResponse = {
       response: {
         data: {
           error: {
-            message: "No User found",
-            code: IErrorCode.USER_NOT_FOUND,
-            status: IStatusCode.NOT_FOUND,
+            message: "This name is already used",
+            code: IErrorCode.NAME_ALREADY_USED,
+            status: IStatusCode.BAD_REQUEST,
           },
         },
       },
@@ -592,33 +735,82 @@ describe("Handle Login submit behavior", () => {
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    const errorMessage = document.querySelector(".form-form .input-error");
-    expect(errorMessage?.textContent).toBe("Adresse mail incorrect.");
+    const errorEl = document.querySelector(".form-form .input-error");
+    expect(errorEl?.textContent).toBe("Ce nom d'utilisateur est déjà utilisé.");
   });
-});
 
-it("If password is wrong, display an appropriate message", async () => {
-  initialState.email = "test@gmail.com";
-  initialState.password = "wrong_password";
-  initHook();
-  const btnSubmit = document.querySelector("#submit") as Element;
-  const mockedResponse = {
-    response: {
-      data: {
-        error: {
-          message: "Password is invalid",
-          code: IErrorCode.INVALID_PASSWORD,
-          status: IStatusCode.BAD_REQUEST,
+  it("If a player with this email already exist. Send an appropriate error message", async () => {
+    initialState.name = "Robin";
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
+    initHook();
+    const btnSubmit = document.querySelector("#submit") as Element;
+    const mockedResponse = {
+      response: {
+        data: {
+          error: {
+            message: "A User with this email already exist",
+            code: IErrorCode.SAME_EMAIL,
+            status: IStatusCode.BAD_REQUEST,
+          },
         },
       },
-    },
-  };
-  axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
-  act(() => {
+    };
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
+    await waitFor(() => {});
+    const errorEl = document.querySelector(".form-form .input-error");
+    expect(errorEl?.textContent).toBe("Cet email est déjà utilisé.");
   });
-  await waitFor(() => {});
 
-  const errorMessage = document.querySelector(".form-form .input-error");
-  expect(errorMessage?.textContent).toBe("Mot de passe incorrect.");
+  it("If password and confirm password are not the same. Send an appropriate error message", async () => {
+    initialState.name = "Robin";
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
+    initHook();
+    const btnSubmit = document.querySelector("#submit") as Element;
+    const mockedResponse = {
+      response: {
+        data: {
+          error: {
+            message: "Passwords are not the same",
+            code: IErrorCode.CANNOT_CONFIRM_PASSWORD,
+            status: IStatusCode.BAD_REQUEST,
+          },
+        },
+      },
+    };
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
+    fireEvent.click(btnSubmit);
+    await waitFor(() => {});
+    const errorEl = document.querySelector(".form-error-container .input-error");
+    expect(errorEl?.textContent).toBe("La confirmation de vos mots de passe est invalide.");
+  });
+
+  it("If the server cannot create User. Send an appropriate error message", async () => {
+    initialState.name = "Robin";
+    initialState.email = "test@gmail.com";
+    initialState.password = "azerty";
+    initialState.confirmPassword = "azerty";
+    initHook();
+    const btnSubmit = document.querySelector("#submit") as Element;
+    const mockedResponse = {
+      response: {
+        data: {
+          error: {
+            message: "Not able to create User",
+            code: IErrorCode.CANNOT_CREATE_USER,
+            status: IStatusCode.BAD_REQUEST,
+          },
+        },
+      },
+    };
+    axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
+    fireEvent.click(btnSubmit);
+    await waitFor(() => {});
+    const errorEl = document.querySelector(".form-error-container .input-error");
+    expect(errorEl?.textContent).toBe("Impossible de créer l'utilisateur. Veuillez réessayer plus tard.");
+  });
 });

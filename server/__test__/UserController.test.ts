@@ -26,7 +26,11 @@ describe("POST /login", () => {
   });
 
   it("Successful request", async () => {
-    User.findOne = jest.fn().mockImplementation(() => Promise.resolve(mockedUser));
+    const mockReturnObject = {
+      select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
+    };
+    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
+
     bcrypt.compare = jest.fn().mockReturnValue(true);
     jwt.sign = jest.fn().mockReturnValue("TOKEN");
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
@@ -49,6 +53,7 @@ describe("POST /login", () => {
     });
   });
   it("Cannot find user", async () => {
+    User.findOne = jest.fn().mockReturnValue({ select: jest.fn() });
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
     expect(res.body).toStrictEqual({
@@ -56,7 +61,10 @@ describe("POST /login", () => {
     });
   });
   it("Password is wrong", async () => {
-    User.findOne = jest.fn().mockImplementation(() => Promise.resolve(mockedUser));
+    const mockReturnObject = {
+      select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
+    };
+    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(false);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
@@ -65,7 +73,10 @@ describe("POST /login", () => {
     });
   });
   it("Cannot generate user token", async () => {
-    User.findOne = jest.fn().mockImplementation(() => Promise.resolve(mockedUser));
+    const mockReturnObject = {
+      select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
+    };
+    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(true);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
@@ -73,8 +84,15 @@ describe("POST /login", () => {
       error: { code: IErrorCode.CANNOT_GET_JWT_TOKEN, message: "Cannot get User Token", status: IStatusCode.NOT_FOUND },
     });
   });
+
   it("handle unexpected errors", async () => {
-    User.findOne = jest.fn().mockImplementation(() => Promise.reject(new Error("Unexpected Error")));
+    const mockReturnObject = {
+      select: jest.fn().mockImplementation(() => {
+        throw new Error("Unexpected Error");
+      }),
+    };
+
+    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({

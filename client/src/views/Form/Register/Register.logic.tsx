@@ -1,14 +1,16 @@
 import React, { useCallback, useReducer, useEffect } from "react";
-import { reducer, initialState, IAction, componentIsUnmounting, IState } from "./Login.reducer";
+import { reducer, initialState, IAction, componentIsUnmounting, IState } from "./Register.reducer";
 import { useDispatch } from "react-redux";
-import { IAppDispatch } from "../../redux/store";
+import { IAppDispatch } from "../../../redux/store";
 import { useNavigate } from "react-router-dom";
-import { setAuth } from "../../redux/reducers/authReducer";
+import { setAuth } from "../../../redux/reducers/authReducer";
 import { useMutation } from "react-query";
-import { login } from "../../apis/actions/UserAction";
-import { IError } from "../../apis/IError";
+import { IError } from "../../../apis/IError";
+import { register } from "../../../apis/actions/UserAction";
+import { IUser } from "../../../apis/IUser";
+import { setUser } from "../../../redux/reducers/userReducer";
 
-export const useLogin = () => {
+export const useRegister = () => {
   // Services
   const dispatchCtx = useDispatch<IAppDispatch>();
   const navigate = useNavigate();
@@ -28,10 +30,19 @@ export const useLogin = () => {
     emailIsValid();
   }, [state.email, state.form.emailIsValid]);
 
-  const mutation = useMutation(async () => login({ email: state.email, password: state.password }), {
-    onSuccess: (res) => handleSuccess(res.token),
-    onError: (err: IError) => handleError(err),
-  });
+  const mutation = useMutation(
+    async () =>
+      register({
+        name: state.name,
+        email: state.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+      }),
+    {
+      onSuccess: (res) => handleSuccess(res),
+      onError: (err: IError) => handleError(err),
+    }
+  );
 
   /**
    * This function is used to submit form by pressing Enter key
@@ -80,17 +91,19 @@ export const useLogin = () => {
   };
 
   /**
-   * This function is used to handle succes of the login request.
+   * This function is used to handle succes of the register request.
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
    */
-  const handleSuccess = useCallback((token: string): void => {
+  const handleSuccess = useCallback((data: { token: string; user: Omit<IUser, "password"> }): void => {
+    const { token, user } = data;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
+    dispatchCtx(setUser(user));
     navigate("/Home");
   }, []);
 
   /**
-   * This function is used to handle error of the login request.
+   * This function is used to handle error of the register request.
    * @param {IError} error - Error with message/errorCode/statusCode
    * @returns {void}
    */
@@ -98,8 +111,10 @@ export const useLogin = () => {
     const payload: IState = {
       ...state,
       error,
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       form: { ...state.form, emailIsValid: false },
     };
     dispatch({ type: IAction.UPDATE_ERROR_MESSAGE, payload });
@@ -107,13 +122,13 @@ export const useLogin = () => {
   };
 
   /**
-   * This function is used to handle submit the login form.
+   * This function is used to handle submit the register form.
    * @param {React.SyntheticEvent} e - JS Event
    * @returns {void}
    */
   const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
     e?.preventDefault();
-    if (!state.email || !state.password || !state.form.emailIsValid) return;
+    if (!state.name || !state.password || !state.form.emailIsValid || state.password !== state.confirmPassword) return;
     mutation.mutate();
   };
 

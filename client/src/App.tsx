@@ -1,9 +1,9 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./views/Login/Login";
+import Login from "./views/Form/Login/Login";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import Home from "./views/Home/Home";
-import Register from "./views/Register/Register";
+import Register from "./views/Form/Register/Register";
 
 function App() {
   return (
