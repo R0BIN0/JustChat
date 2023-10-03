@@ -31,7 +31,8 @@ export const registerController = async (
   if (!user) throw new AppError(IErrorCode.CANNOT_CREATE_USER, "Not able to create User", IStatusCode.BAD_REQUEST);
   const token = getAuthenticatedToken(user.name, user.email);
   if (!token) throw new AppError(IErrorCode.CANNOT_GET_JWT_TOKEN, "Cannot get User Token", IStatusCode.NOT_FOUND);
-  res.status(IStatusCode.CREATED).json({ token, user });
+  const userWithoutPassword = { name: user.name, email: user.email };
+  res.status(IStatusCode.CREATED).json({ token, user: userWithoutPassword });
 };
 
 /**
