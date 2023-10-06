@@ -1,12 +1,21 @@
-import { IConnectedUser } from "../../types/IConnectedUser";
+import { IUser } from "../../apis/IUser";
+import { IError } from "../../apis/IError";
 
-export let initialState: { users: IConnectedUser[]; search: string } = {
-  users: [],
+export let initialState: { users: { data: IUser[]; isLoading: boolean; error: IError | undefined }; search: string } = {
+  users: {
+    data: [],
+    isLoading: true,
+    error: undefined,
+  },
   search: "",
 };
 
 const getDefaultState = () => ({
-  users: [],
+  users: {
+    data: [],
+    isLoading: true,
+    error: undefined,
+  },
   search: "",
 });
 
@@ -15,6 +24,7 @@ export type IState = typeof initialState;
 export enum IAction {
   UPDATE_INPUT = "update_input",
   SEARCH_USER = "search_user",
+  SET_QUERY = "set_query",
 }
 
 export const componentIsUnmounting = () => {

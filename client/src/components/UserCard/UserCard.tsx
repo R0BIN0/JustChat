@@ -1,10 +1,9 @@
 import { FC, memo } from "react";
 import "./UserCard.css";
-import { IConnectedUser } from "../../types/IConnectedUser";
+import { IUser } from "../../apis/IUser";
 
-const UserCard: FC<IConnectedUser> = memo((props) => {
+const UserCard: FC<IUser> = memo((props) => {
   const { online } = props;
-
   return (
     <div className="userCard-container" data-online={online}>
       <div className="userCard-left">

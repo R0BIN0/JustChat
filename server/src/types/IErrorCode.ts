@@ -11,4 +11,6 @@ export enum IErrorCode {
   NAME_ALREADY_USED = 1006,
   SAME_EMAIL = 1007,
   WRONG_MAIL_FORMAT = 1008,
+  // Users (2000 -> 3000)
+  NO_USER = 2001,
 }

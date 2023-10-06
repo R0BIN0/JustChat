@@ -4,6 +4,9 @@ import { IUser } from "../../apis/IUser";
 const initialState: Omit<IUser, "password"> = {
   name: "",
   email: "",
+  pictureId: 1,
+  online: false,
+  _id: "",
 };
 
 const userSlice = createSlice({
@@ -11,9 +14,12 @@ const userSlice = createSlice({
   initialState: initialState,
   reducers: {
     setUser(state, action: PayloadAction<Omit<IUser, "password">>) {
-      const { name, email } = action.payload;
+      const { name, email, pictureId, online, _id } = action.payload;
       state.name = name;
       state.email = email;
+      state.pictureId = pictureId;
+      state.online = online;
+      state._id = _id;
     },
   },
 });

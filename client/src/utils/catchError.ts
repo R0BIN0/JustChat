@@ -37,6 +37,8 @@ const getMessageError = (err: IErrorCode): string => {
       return "Cet email est déjà utilisé.";
     case IErrorCode.WRONG_MAIL_FORMAT:
       return "Votre adresse mail est invalide";
+    case IErrorCode.NO_USER:
+      return "Aucun utilisateur n'a été trouvé.";
     default:
       return "Une erreur est survenue. Veuillez réessayer ultérieurement.";
   }

@@ -16,5 +16,11 @@ const loginAction = async (data: Pick<IUser, "email" | "password">): Promise<{ t
   return response.data;
 };
 
+const getAllUsersAction = async (): Promise<{ users: IUser[] }> => {
+  const response = await axios.get(`${LOCAL_ROUTE}/users/all`);
+  return response.data;
+};
+
 export const login = tryCatch(loginAction);
 export const register = tryCatch(registerAction);
+export const getAllUsers = tryCatch(getAllUsersAction);
