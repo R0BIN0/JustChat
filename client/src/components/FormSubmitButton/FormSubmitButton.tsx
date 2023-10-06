@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { IFormSubmitButton } from "../../types/Form/IFormSubmitButton";
 import "./FormSubmitButton.css";
+import ShortCut from "../ShortCut/ShortCut";
 
 const FormSubmitButton: FC<IFormSubmitButton> = (props) => {
   return (
@@ -11,11 +12,10 @@ const FormSubmitButton: FC<IFormSubmitButton> = (props) => {
         <>
           <p>{props.label}</p>
           {props.keyboardSubmit.isAvailable && (
-            <div className="form-press-keyboard-btn">
-              <div></div>
-              <div></div>
-              <p>{props.keyboardSubmit.key}</p>
-            </div>
+            <ShortCut
+              label="Enter"
+              colors={{ primaryBackground: "#d1cb32", color: "#18191e", secondaryBackground: "#4f5164" }}
+            />
           )}
         </>
       )}

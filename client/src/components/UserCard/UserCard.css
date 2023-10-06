@@ -1,0 +1,77 @@
+.userCard-container {
+  background: #1d1e25;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.userCard-container[data-online~="false"] {
+  opacity: 0.5;
+}
+/* UserCard left */
+
+.userCard-left {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.userCard-left-picture-container {
+  margin-right: 1rem;
+}
+
+.userCard-left-picture-container img {
+  width: 45px;
+}
+
+.userCard-left-text-container {
+}
+
+.userCard-left-text-container p {
+  font-size: 1em;
+  font-weight: 500;
+  color: white;
+}
+
+.userCard-left-text-container span {
+  font-size: 0.8rem;
+  color: #b5b5b5;
+}
+
+/* UserCard right */
+
+.userCard-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.userCard-right p {
+  font-size: 0.75rem;
+  color: #3dec20;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+.userCard-right[data-online~="false"] p {
+  color: var(--secondary-color);
+}
+
+.userCard-right span {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: #3dec20;
+  border-radius: 50%;
+}
+
+.userCard-right[data-online~="false"] span {
+  background: var(--secondary-color);
+}
+
+@media screen and (max-width: 500px) {
+  .userCard-right p {
+    display: none;
+  }
+}

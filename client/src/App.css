@@ -169,5 +169,5 @@ input::placeholder {
 body {
   line-height: 1;
   font-family: "Onest", sans-serif;
-  /* overflow: hidden; */
+  background: var(--primary-color);
 }
