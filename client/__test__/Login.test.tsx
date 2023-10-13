@@ -18,6 +18,7 @@ import Home from "../src/views/Home/Home";
 import Register from "../src/views/Form/Register/Register";
 import { IErrorCode } from "../src/apis/IErrorCode";
 import { IStatusCode } from "../src/apis/IStatusCode";
+import { IUser } from "../src/apis/IUser";
 
 let store: IStore;
 export type IUseLogin = ReturnType<typeof useLogin>;
@@ -374,7 +375,7 @@ describe("Submit button behavior are working", () => {
   });
   it("There is a label inside submit button called 'Enter'", () => {
     hookResult = initHook();
-    const pressEnterLabel = document.querySelector("#submit .form-press-keyboard-btn");
+    const pressEnterLabel = document.querySelector("#submit .shortCut-keyboard-btn p");
     expect(pressEnterLabel).toBeInTheDocument();
     expect(pressEnterLabel?.textContent).toBe("Enter");
   });
@@ -508,7 +509,14 @@ describe("Handle Login submit behavior", () => {
     initialState.password = "azerty123";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN" } };
+    const mockedUser: Omit<IUser, "password"> = {
+      name: "Robin",
+      email: "test@gmail.com",
+      pictureId: 1,
+      online: true,
+      _id: "ABC",
+    };
+    const mockedResponse = { data: { token: "TOKEN", user: mockedUser } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
@@ -537,13 +545,21 @@ describe("Handle Login submit behavior", () => {
     );
 
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN" } };
+    const mockedUser: Omit<IUser, "password"> = {
+      name: "Robin",
+      email: "test@gmail.com",
+      pictureId: 1,
+      online: true,
+      _id: "ABC",
+    };
+    const mockedResponse = { data: { token: "TOKEN", user: mockedUser } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Discuter avec tout le monde !")).toBeInTheDocument();
     unmount();
   });
+
   it("If the reponse is wrong from the server. Dispatch infos to store", async () => {
     initialState.email = "test@gmail.com";
     initialState.password = "azerty123";

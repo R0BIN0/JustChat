@@ -19,6 +19,7 @@ import { register } from "../src/apis/actions/UserAction";
 import Login from "../src/views/Form/Login/Login";
 import { IErrorCode } from "../src/apis/IErrorCode";
 import { IStatusCode } from "../src/apis/IStatusCode";
+import { IUser } from "../src/apis/IUser";
 
 let store: IStore;
 export type IUseRegister = ReturnType<typeof useRegister>;
@@ -499,7 +500,7 @@ describe("Submit button behavior are working", () => {
   });
   it("There is a label inside submit button called 'Enter'", () => {
     hookResult = initHook();
-    const pressEnterLabel = document.querySelector("#submit .form-press-keyboard-btn");
+    const pressEnterLabel = document.querySelector("#submit .shortCut-keyboard-btn p");
     expect(pressEnterLabel).toBeInTheDocument();
     expect(pressEnterLabel?.textContent).toBe("Enter");
   });
@@ -601,7 +602,7 @@ describe("Redirection to /login", () => {
   });
 });
 
-describe("Handle Login submit behavior", () => {
+describe("Handle Register submit behavior", () => {
   let componentResult: RenderResult;
   let hookResult: RenderHookResult<IUseRegister, unknown>;
 
@@ -614,21 +615,25 @@ describe("Handle Login submit behavior", () => {
     componentResult?.unmount();
   });
 
-  it("Simulate success login request", async () => {
+  it("Simulate success register request", async () => {
+    const name = "Robin";
     const email = "test@gmail.com";
     const password = "azerty123";
+    const confirmPassword = "azerty";
     const mockedResponse = { data: { token: "TOKEN" } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
-    const data = await register({ email, password });
+    const data = await register({ name, email, password, confirmPassword });
     expect(data).toStrictEqual({ token: "TOKEN" });
   });
 
-  it("Simulate bad login request", async () => {
-    const email = "";
-    const password = "";
+  it("Simulate bad register request", async () => {
+    const name = "Robin";
+    const email = "test@gmail.com";
+    const password = "azerty123";
+    const confirmPassword = "azerty";
     const mockedResponse = new Error("Unexpected Error !");
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
-    await expect(register({ email, password })).rejects.toThrow(
+    await expect(register({ name, email, password, confirmPassword })).rejects.toThrow(
       "Une erreur est survenue. Veuillez réessayer ultérieurement."
     );
   });
@@ -640,7 +645,14 @@ describe("Handle Login submit behavior", () => {
     initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedResponse = { data: { token: "TOKEN", user: { name: "Robin", email: "test@gmail.com" } } };
+    const mockedUser: Omit<IUser, "password"> = {
+      name: "Robin",
+      email: "test@gmail.com",
+      pictureId: 1,
+      online: true,
+      _id: "ABC",
+    };
+    const mockedResponse = { data: { token: "TOKEN", user: mockedUser } };
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
@@ -648,7 +660,7 @@ describe("Handle Login submit behavior", () => {
     expect(isAuthenticated).toBeTruthy();
     expect(token).toStrictEqual("TOKEN");
     const user = store.getState().user;
-    expect(user).toStrictEqual({ name: "Robin", email: "test@gmail.com" });
+    expect(user).toStrictEqual(mockedUser);
   });
 
   it("If the reponse is good from the server. The user is redirected to '/Home' path", async () => {
@@ -675,7 +687,7 @@ describe("Handle Login submit behavior", () => {
     axios.post = jest.fn().mockImplementation(() => Promise.resolve(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Discuter avec tout le monde !")).toBeInTheDocument();
     unmount();
   });
   it("If the reponse is wrong from the server. Dispatch infos to store", async () => {

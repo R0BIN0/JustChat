@@ -1,7 +1,7 @@
 import { IError } from "../../../apis/IError";
 import { IUser } from "../../../apis/IUser";
 
-export let initialState: IUser & {
+export let initialState: Pick<IUser, "name" | "email" | "password"> & {
   confirmPassword: string;
   error: IError | undefined;
   form: { passwordIsHidden: boolean; emailIsValid: boolean };

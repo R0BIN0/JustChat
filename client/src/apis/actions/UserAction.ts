@@ -11,14 +11,16 @@ const registerAction = async (
   return response.data;
 };
 
-const loginAction = async (data: Pick<IUser, "email" | "password">): Promise<{ token: string }> => {
+const loginAction = async (
+  data: Pick<IUser, "email" | "password">
+): Promise<{ token: string; user: Omit<IUser, "password"> }> => {
   const response = await axios.post(`${LOCAL_ROUTE}/login`, data);
   return response.data;
 };
 
 const getAllUsersAction = async (): Promise<{ users: IUser[] }> => {
   const response = await axios.get(`${LOCAL_ROUTE}/users/all`);
-  return response.data;
+  return response.data.users;
 };
 
 export const login = tryCatch(loginAction);

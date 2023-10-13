@@ -6,10 +6,12 @@ import jwt from "jsonwebtoken";
 import { IErrorCode } from "../src/types/IErrorCode.js";
 import { IStatusCode } from "../src/types/IStatusCode.js";
 
-const mockedUser: { name: string; email: string; password?: string } = {
+const mockedUser: { name: string; email: string; password?: string; pictureId: number; online: boolean } = {
   name: "Robin",
   email: "test@gmail.com",
   password: "hello",
+  pictureId: 1,
+  online: true,
 };
 
 beforeAll(() => {
@@ -31,9 +33,14 @@ describe("POST /register", () => {
     bcrypt.compare = jest.fn().mockReturnValue(true);
     bcrypt.hash = jest.fn().mockReturnValue("HashedPassword");
     jwt.sign = jest.fn().mockReturnValue("TOKEN");
-    const res = await req(app)
-      .post("/api/v1/register")
-      .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
+    const res = await req(app).post("/api/v1/register").send({
+      name: "Robin",
+      email: "test@gmail.com",
+      password: "azerty",
+      confirmPassword: "azerty",
+      pictureId: 1,
+      online: true,
+    });
     expect(res.statusCode).toBe(IStatusCode.CREATED);
     delete mockedUser["password"];
     expect(res.body).toStrictEqual({ token: "TOKEN", user: mockedUser });
@@ -78,7 +85,6 @@ describe("POST /register", () => {
       error: { code: IErrorCode.EMPTY_INPUT, message: "Inputs are empty", status: IStatusCode.BAD_REQUEST },
     });
   });
-  0;
 
   it("A User has already this userName", async () => {
     User.findOne = jest.fn().mockReturnValue(mockedUser);
@@ -167,13 +173,13 @@ describe("POST /login", () => {
     const mockReturnObject = {
       select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
     };
-    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
+    User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
 
     bcrypt.compare = jest.fn().mockReturnValue(true);
     jwt.sign = jest.fn().mockReturnValue("TOKEN");
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toStrictEqual({ token: "TOKEN" });
+    expect(res.body).toStrictEqual({ token: "TOKEN", user: mockedUser });
   });
 
   it("Email not provided", async () => {
@@ -191,7 +197,7 @@ describe("POST /login", () => {
     });
   });
   it("Cannot find user", async () => {
-    User.findOne = jest.fn().mockReturnValue({ select: jest.fn() });
+    User.findOneAndUpdate = jest.fn().mockReturnValue({ select: jest.fn() });
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
     expect(res.body).toStrictEqual({
@@ -202,7 +208,7 @@ describe("POST /login", () => {
     const mockReturnObject = {
       select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
     };
-    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
+    User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(false);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
@@ -214,7 +220,7 @@ describe("POST /login", () => {
     const mockReturnObject = {
       select: jest.fn().mockReturnValue(Promise.resolve(mockedUser)),
     };
-    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
+    User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(true);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
@@ -229,7 +235,7 @@ describe("POST /login", () => {
         throw new Error("Unexpected Error");
       }),
     };
-    User.findOne = jest.fn().mockReturnValue(mockReturnObject);
+    User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
     const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({

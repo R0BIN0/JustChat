@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useReducer, useEffect } from "react";
 import { reducer, initialState, IAction, componentIsUnmounting, IState } from "./Login.reducer";
 import { useDispatch } from "react-redux";
@@ -7,6 +8,8 @@ import { setAuth } from "../../../redux/reducers/authReducer";
 import { useMutation } from "react-query";
 import { login } from "../../../apis/actions/UserAction";
 import { IError } from "../../../apis/IError";
+import { setUser } from "../../../redux/reducers/userReducer";
+import { IUser } from "../../../apis/IUser";
 
 export const useLogin = () => {
   // Services
@@ -29,8 +32,8 @@ export const useLogin = () => {
   }, [state.email, state.form.emailIsValid]);
 
   const mutation = useMutation(async () => login({ email: state.email, password: state.password }), {
-    onSuccess: (res) => handleSuccess(res.token),
-    onError: (err: IError) => handleError(err),
+    onSuccess: (res) => onSuccess(res),
+    onError: (err: IError) => onError(err),
   });
 
   /**
@@ -84,9 +87,11 @@ export const useLogin = () => {
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
    */
-  const handleSuccess = useCallback((token: string): void => {
+  const onSuccess = useCallback((res: { token: string; user: Omit<IUser, "password"> }): void => {
+    const { token, user } = res;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
-    navigate("/Home");
+    dispatchCtx(setUser(user));
+    navigate("/home");
   }, []);
 
   /**
@@ -94,7 +99,7 @@ export const useLogin = () => {
    * @param {IError} error - Error with message/errorCode/statusCode
    * @returns {void}
    */
-  const handleError = (error: IError): void => {
+  const onError = (error: IError): void => {
     const payload: IState = {
       ...state,
       error,

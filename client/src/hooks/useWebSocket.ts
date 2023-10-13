@@ -1,30 +1,43 @@
 import { useEffect, useRef } from "react";
+import { setEmitEvent, setSocket } from "../redux/reducers/socketReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { IAppDispatch, IRootState } from "../redux/store";
+import { ISocketEvent } from "../apis/ISocketEvent";
 
 const useWebSocket = (url: string) => {
+  const user = useSelector((s: IRootState) => s.user);
+  const dispatch = useDispatch<IAppDispatch>();
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     socketRef.current = new WebSocket(url);
-
-    socketRef.current.addEventListener("open", () => {
-      console.log("connected");
-    });
-
-    socketRef.current.addEventListener("message", (event) => {
-      console.log("message from server:", event.data);
-    });
-
+    dispatch(setSocket(socketRef.current));
+    dispatch(setEmitEvent(emitEvent));
     return () => {
-      socketRef.current?.close();
+      if (!socketRef.current) return;
+      socketRef.current.close();
     };
   }, [url]);
 
-  const sendMessage = (message: string) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(message);
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [user]);
+
+  const handleBeforeUnload = () => {
+    emitEvent(ISocketEvent.USER_IS_DISCONNECTED, user);
+  };
+
+  const emitEvent = (type: ISocketEvent, evt: unknown) => {
+    try {
+      const socket = socketRef.current;
+      if (!socket) throw new Error("Socket is not initialized");
+      if (socket.readyState !== WebSocket.OPEN) throw new Error("Socket is closed");
+      socket.send(JSON.stringify({ type, evt }));
+    } catch (error) {
+      console.error(error);
     }
   };
-  return { sendMessage };
 };
 
 export default useWebSocket;

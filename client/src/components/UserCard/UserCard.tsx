@@ -2,8 +2,10 @@ import { FC, memo } from "react";
 import "./UserCard.css";
 import { IUser } from "../../apis/IUser";
 
-const UserCard: FC<IUser> = memo((props) => {
+const UserCard: FC<IUser & { hidden: boolean }> = memo((props) => {
   const { online } = props;
+
+  if (props.hidden) return;
   return (
     <div className="userCard-container" data-online={online}>
       <div className="userCard-left">

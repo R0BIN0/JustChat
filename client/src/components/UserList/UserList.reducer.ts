@@ -1,20 +1,20 @@
-import { IError } from "../../apis/IError";
+import { IUser } from "../../apis/IUser";
 
-export let initialState: { isLoaded: boolean; hasError: IError | undefined } = {
-  isLoaded: false,
-  hasError: undefined,
+export let initialState: { users: IUser[]; search: string } = {
+  users: [],
+  search: "",
 };
 
 const getDefaultState = () => ({
-  isLoaded: false,
-  hasError: undefined,
+  users: [],
+  search: "",
 });
 
 export type IState = typeof initialState;
 
 export enum IAction {
-  TOGGLE_IS_LOADED = "toggle_is_loaded",
-  HANDLE_ERROR = "handle_error",
+  UPDATE_INPUT = "update_input",
+  SEARCH_USER = "search_user",
 }
 
 export const componentIsUnmounting = () => {

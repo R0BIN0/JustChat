@@ -1,51 +1,49 @@
-import { useState, memo, useRef, FC } from "react";
-import useWebSocket from "../../hooks/useWebSocket";
 import "./Home.css";
-import ShortCut from "../../components/ShortCut/ShortCut";
-import UserCard from "../../components/UserCard/UserCard";
-import SearchIconSvg from "../../assets/svg/search.svg?react";
+import UserList from "../../components/UserList/UserList";
+import InputSearch from "../../components/InputSearch/InputSearch";
 import { useHome } from "./Home.logic";
-import { IInputSearch } from "../../types/Input/IInputSearch";
 
 const Home = () => {
   const logic = useHome();
-
   return (
     <div className="home-container">
       <div className="home-content">
         <div className="home-title-container">
           <h1>Discuter avec tout le monde !</h1>
         </div>
-        <div className="home-filter-container">
-          <InputSearch handleInput={logic.handleSearchInput} />
-          <div className="home-filter-btn-container">
-            <button>Filtres</button>
+        {!logic.state.isLoaded ? (
+          displayLoading()
+        ) : logic.state.hasError ? (
+          displayError(logic.state.hasError.message)
+        ) : (
+          <div className="home-filter-container">
+            <InputSearch handleInput={logic.handleSearchInput} />
+            {/* <div className="home-filter-btn-container">
+                    <button>Filtres</button>
+                  </div> */}
           </div>
-        </div>
-        <div className="home-users-container">
-          {logic.state.users.isLoading ? (
-            <p>CHARGEMENT</p>
-          ) : logic.state.users.error ? (
-            <p>Une erreur est survenue</p>
-          ) : (
-            <>{logic.state.users.data && logic.state.users.data.map((item, i) => <UserCard key={i} {...item} />)}</>
-          )}
-        </div>
+        )}
+        <UserList
+          onRef={(ref) => (logic.homeRef.current = ref)}
+          toggleIsLoaded={logic.toggleIsLoaded}
+          handleError={logic.handleError}
+        />
       </div>
     </div>
   );
 };
 
-const InputSearch: FC<IInputSearch> = memo((props) => {
-  return (
-    <div className="home-search-inp-container">
-      <input type="text" placeholder="Rechercher par nom d’utilisateur" onChange={props.handleInput} />
-      <button className="home-search-btn">
-        <SearchIconSvg />
-      </button>
-      <ShortCut label="S" colors={{ primaryBackground: "#242530", color: "#565873", secondaryBackground: "#303342" }} />
-    </div>
-  );
-});
+const displayLoading = () => (
+  <div className="home-data-container">
+    <div className="home-data-loader"></div>
+    <p className="home-data-loader-subtitle">Chargement des utilisateurs</p>
+  </div>
+);
+
+const displayError = (errMessage: string) => (
+  <div className="home-data-container">
+    <p className="home-data-error-subtitle">{errMessage}</p>
+  </div>
+);
 
 export default Home;

@@ -47,12 +47,13 @@ export const loginController = async (
 ): Promise<void> => {
   const { email, password } = req.body;
   if (!email || !password) throw new AppError(IErrorCode.EMPTY_INPUT, "Inputs are empty", IStatusCode.BAD_REQUEST);
-  const user: IUser = await User.findOne({ email }).select("+password");
+  const user: IUser = await User.findOneAndUpdate({ email }, { online: true }).select("+password");
   if (!user) throw new AppError(IErrorCode.USER_NOT_FOUND, "No User found", IStatusCode.NOT_FOUND);
   const isValid = await passwordIsValid(password, user.password);
   if (!isValid) throw new AppError(IErrorCode.INVALID_PASSWORD, "Password is invalid", IStatusCode.BAD_REQUEST);
   const token = getAuthenticatedToken(user.name, user.email);
   if (!token) throw new AppError(IErrorCode.CANNOT_GET_JWT_TOKEN, "Cannot get User Token", IStatusCode.NOT_FOUND);
+
   const userWithoutPassword = {
     name: user.name,
     email: user.email,

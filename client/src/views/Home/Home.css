@@ -1,6 +1,7 @@
 .home-container {
   width: 100%;
   min-height: 650px;
+  height: 100vh;
   background: var(--primary-color);
   display: flex;
   justify-content: center;
@@ -57,7 +58,6 @@
 }
 
 .home-search-inp-container input::placeholder {
-  /* color: var(--text-color); */
   color: #4f5164;
 }
 
@@ -101,6 +101,56 @@
 
 .home-users-container {
   margin-top: 1rem;
+  color: white;
+  height: 100%;
+}
+
+.home-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column nowrap;
+  font-size: 0.85em;
+  height: 100%;
+}
+
+.home-data-loader {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #777a91;
+  border-radius: 50%;
+  border-right-color: var(--secondary-color);
+  animation: spin 1s ease infinite;
+  margin-bottom: 0.75rem;
+}
+
+.home-data-loader-subtitle {
+  color: var(--secondary-color);
+  animation: skeleton 1s ease infinite alternate;
+}
+
+.home-data-error-subtitle {
+  color: var(--error-color);
+  padding: 1rem;
+  background: var(--error-color-o10);
+  border: 1px solid var(--error-color);
+  text-align: center;
+  border-radius: 4px;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes skeleton {
+  0% {
+    color: #777a91;
+  }
+  100% {
+    color: var(--secondary-color);
+  }
 }
 
 @media screen and (max-width: 500px) {

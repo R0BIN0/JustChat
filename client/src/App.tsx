@@ -4,15 +4,19 @@ import Login from "./views/Form/Login/Login";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import Home from "./views/Home/Home";
 import Register from "./views/Form/Register/Register";
+import useWebSocket from "./hooks/useWebSocket";
 
 function App() {
+  useWebSocket("ws://localhost:8000");
+
   return (
     <div className="App">
       <Router>
         <Routes>
-          <Route element={<Home />} path="/" />
-          <Route element={<PrivateRoutes />}></Route>
-          <Route element={<Login />} path="/login" />
+          <Route element={<PrivateRoutes />}>
+            <Route element={<Home />} path="/home" />
+          </Route>
+          <Route element={<Login />} path="/" />
           <Route element={<Register />} path="/register" />
         </Routes>
       </Router>

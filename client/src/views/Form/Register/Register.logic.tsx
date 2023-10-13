@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useReducer, useEffect } from "react";
 import { reducer, initialState, IAction, componentIsUnmounting, IState } from "./Register.reducer";
 import { useDispatch } from "react-redux";
@@ -99,7 +100,7 @@ export const useRegister = () => {
     const { token, user } = data;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
     dispatchCtx(setUser(user));
-    navigate("/Home");
+    navigate("/home");
   }, []);
 
   /**
