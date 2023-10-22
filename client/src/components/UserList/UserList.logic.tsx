@@ -1,6 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import { IUser } from "../../apis/IUser";
-import { getAllUsers } from "../../apis/actions/UserAction";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../redux/store";
@@ -9,14 +7,8 @@ import { ISocketEvent } from "../../apis/ISocketEvent";
 import { reducer, initialState, IState, IAction, componentIsUnmounting } from "./UserList.reducer";
 import { IUserList } from "../../types/Users/IUserList";
 import { IError } from "../../apis/IError";
-
-const queryOptions = {
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: true,
-  retry: 2,
-};
-
-const QUERY_KEY = "users";
+import { useQueryCache } from "../../hooks/useQueryCache/useQueryCache";
+import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
 
 export const useUserList = (props: IUserList) => {
   // Services
@@ -30,17 +22,11 @@ export const useUserList = (props: IUserList) => {
   const usersRef = useRef<IUser[]>([]);
 
   // useQuery
-  const queryClient = useQueryClient();
-  const { data, error, isLoading } = useQuery<IUser[]>(QUERY_KEY, getAllUsers, queryOptions);
-
-  const updateDataCache = (users: IUser[]) => {
-    queryClient.setQueryData(QUERY_KEY, users);
-    usersRef.current = users;
-  };
-
-  const mutation = useMutation(async (users: IUser[]) => updateDataCache(users), {
-    onSettled: () => queryClient.invalidateQueries(QUERY_KEY, { refetchActive: false }),
-  });
+  const {
+    queryUsers: { data, isLoading, error },
+    usersCache,
+    mutate,
+  } = useQueryCache();
 
   // UseEffect
   useEffect(() => {
@@ -66,6 +52,14 @@ export const useUserList = (props: IUserList) => {
     };
   }, [webSocket]);
 
+  useEffect(() => {
+    if (!webSocket) return;
+    webSocket.addEventListener("message", onEvent);
+    return () => {
+      webSocket.removeEventListener("message", onEvent);
+    };
+  }, [webSocket, usersCache]);
+
   const setUserIsConnected = useCallback(() => {
     if (!user._id) return;
     emitEvent(ISocketEvent.USER_IS_CONNECTED, user);
@@ -85,27 +79,32 @@ export const useUserList = (props: IUserList) => {
     }
   };
 
-  const onUserConnected = useCallback((userInfo: IUser): void => {
-    let newArray: IUser[] = [];
-    const { _id } = userInfo;
-    if (_id === user._id) return;
-    const allUsers = queryClient.getQueryData<IUser[]>(QUERY_KEY) ?? [];
-    const isHere = allUsers.find((item) => item._id === _id);
-    if (isHere) {
-      newArray = allUsers.map((item) => (item._id === _id ? { ...item, online: true } : item));
-    } else {
-      newArray = [...allUsers, userInfo];
-    }
-    mutation.mutate(newArray);
-  }, []);
+  const onUserConnected = useCallback(
+    (userInfo: IUser): void => {
+      let newArray: IUser[] = [];
+      const { _id } = userInfo;
+      if (_id === user._id) return;
+      console.log(usersCache, "USER CACHE");
+      const isHere = usersCache.find((item) => item._id === _id);
+      if (isHere) {
+        newArray = usersCache.map((item) => (item._id === _id ? { ...item, online: true } : item));
+      } else {
+        newArray = [...usersCache, userInfo];
+      }
+      mutate({ data: newArray, queryKey: [QUERY_KEY.USERS] });
+    },
+    [usersCache]
+  );
 
-  const onUserDisconnected = useCallback((userInfo: IUser): void => {
-    const { _id } = userInfo;
-    if (_id === user._id) return;
-    const allUsers = queryClient.getQueryData<IUser[]>(QUERY_KEY) ?? [];
-    const newArray: IUser[] = allUsers.map((item) => (item._id === _id ? { ...item, online: false } : item));
-    mutation.mutate(newArray);
-  }, []);
+  const onUserDisconnected = useCallback(
+    (userInfo: IUser): void => {
+      const { _id } = userInfo;
+      if (_id === user._id) return;
+      const newArray: IUser[] = usersCache.map((item) => (item._id === _id ? { ...item, online: false } : item));
+      mutate({ data: newArray, queryKey: [QUERY_KEY.USERS] });
+    },
+    [usersCache]
+  );
 
   const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
@@ -115,5 +114,5 @@ export const useUserList = (props: IUserList) => {
 
   const isHide = (name: string) => !name.toLowerCase().includes(state.search.toLowerCase());
 
-  return { state, user, data, isLoading, error, isHide };
+  return { state, user, isLoading, error, isHide, usersCache };
 };

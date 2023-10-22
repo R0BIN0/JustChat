@@ -13,9 +13,9 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { initialState, IState } from "../src/components/UserList/UserList.reducer";
 import { setUser } from "../src/redux/reducers/userReducer";
 
-export const queryClient = new QueryClient();
-
+let queryClient = new QueryClient();
 let store: IStore;
+
 export type IUseUserList = ReturnType<typeof useUserList>;
 type IChildren = {
   children: React.ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
@@ -63,7 +63,6 @@ const initHook = (): RenderHookResult<IUseUserList, unknown> => {
 };
 
 const initComponent = (): RenderResult => {
-  store = initStore();
   return render(
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
@@ -187,6 +186,7 @@ describe("Received Users data from useQuery call", () => {
     jest.restoreAllMocks();
     axios.get = jest.fn();
     store = initStore();
+    queryClient = new QueryClient();
   });
 
   afterEach(() => {

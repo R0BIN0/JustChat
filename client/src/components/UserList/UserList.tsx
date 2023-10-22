@@ -5,12 +5,14 @@ import { IUserList } from "../../types/Users/IUserList";
 import "./UserList.css";
 
 const UserList: FC<IUserList> = (props) => {
+  console.log("RENDER !");
+
   const logic = useUserList(props);
   if (logic.isLoading || logic.error) return <></>;
 
   return (
     <div className="userList-container">
-      {logic.data
+      {logic.usersCache
         ?.filter((item) => item._id !== logic.user._id)
         .map((item) => (
           <UserCard key={item._id} {...item} hidden={logic.isHide(item.name)} />
