@@ -99,12 +99,6 @@
   color: var(--primary-color);
 }
 
-.home-users-container {
-  margin-top: 1rem;
-  color: white;
-  height: 100%;
-}
-
 .home-data-container {
   display: flex;
   justify-content: center;

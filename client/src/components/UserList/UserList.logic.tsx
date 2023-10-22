@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { IRootState } from "../../redux/store";
 import { parseSocketEvent } from "../../utils/parseSocketEvent";
 import { ISocketEvent } from "../../apis/ISocketEvent";
-import { reducer, initialState, IState, IAction } from "./UserList.reducer";
+import { reducer, initialState, IState, IAction, componentIsUnmounting } from "./UserList.reducer";
 import { IUserList } from "../../types/Users/IUserList";
 import { IError } from "../../apis/IError";
 
@@ -43,9 +43,9 @@ export const useUserList = (props: IUserList) => {
   });
 
   // UseEffect
-
   useEffect(() => {
     props.onRef({ handleSearchInput });
+    return () => componentIsUnmounting();
   }, []);
 
   useEffect(() => {
@@ -115,5 +115,5 @@ export const useUserList = (props: IUserList) => {
 
   const isHide = (name: string) => !name.toLowerCase().includes(state.search.toLowerCase());
 
-  return { state, data, isLoading, error, isHide };
+  return { state, user, data, isLoading, error, isHide };
 };

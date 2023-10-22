@@ -1,6 +1,6 @@
 import { IUser } from "../../apis/IUser";
 
-export let initialState: { users: IUser[]; search: string } = {
+export let initialState: { users: Omit<IUser, "password">[]; search: string } = {
   users: [],
   search: "",
 };
