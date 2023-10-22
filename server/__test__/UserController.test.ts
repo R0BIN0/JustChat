@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IErrorCode } from "../src/types/IErrorCode.js";
 import { IStatusCode } from "../src/types/IStatusCode.js";
+import { generateUser } from "../src/test/utils/generateUser.js";
+import { IError } from "../src/types/IError.js";
 
 const mockedUser: { name: string; email: string; password?: string; pictureId: number; online: boolean } = {
   name: "Robin",
@@ -13,6 +15,8 @@ const mockedUser: { name: string; email: string; password?: string; pictureId: n
   pictureId: 1,
   online: true,
 };
+
+const ROUTE = "/api/v1";
 
 beforeAll(() => {
   process.env.JWT_SECRET = "azerty";
@@ -33,7 +37,7 @@ describe("POST /register", () => {
     bcrypt.compare = jest.fn().mockReturnValue(true);
     bcrypt.hash = jest.fn().mockReturnValue("HashedPassword");
     jwt.sign = jest.fn().mockReturnValue("TOKEN");
-    const res = await req(app).post("/api/v1/register").send({
+    const res = await req(app).post(`${ROUTE}/register`).send({
       name: "Robin",
       email: "test@gmail.com",
       password: "azerty",
@@ -48,7 +52,7 @@ describe("POST /register", () => {
 
   it("Email not provided", async () => {
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -58,7 +62,7 @@ describe("POST /register", () => {
 
   it("Name not provided", async () => {
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -68,7 +72,7 @@ describe("POST /register", () => {
 
   it("Password not provided", async () => {
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -78,7 +82,7 @@ describe("POST /register", () => {
 
   it("Confirm Password not provided", async () => {
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -89,7 +93,7 @@ describe("POST /register", () => {
   it("A User has already this userName", async () => {
     User.findOne = jest.fn().mockReturnValue(mockedUser);
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -104,7 +108,7 @@ describe("POST /register", () => {
   it("Password and Confirm password are not the same", async () => {
     User.findOne = jest.fn().mockReturnValue(false);
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "anotherOne", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -120,7 +124,7 @@ describe("POST /register", () => {
     User.findOne = jest.fn().mockReturnValue(false);
     bcrypt.hash = jest.fn().mockReturnValue(false);
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -137,7 +141,7 @@ describe("POST /register", () => {
     bcrypt.hash = jest.fn().mockReturnValue("HashedPassword");
     User.create = jest.fn().mockReturnValue(false);
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -155,7 +159,7 @@ describe("POST /register", () => {
     bcrypt.compare = jest.fn().mockReturnValue(true);
     User.create = jest.fn().mockReturnValue(mockedUser);
     const res = await req(app)
-      .post("/api/v1/register")
+      .post(`${ROUTE}/register`)
       .send({ name: "Robin", email: "test@gmail.com", password: "azerty", confirmPassword: "azerty" });
     expect(res.statusCode).toBe(404);
     expect(res.body).toStrictEqual({
@@ -177,20 +181,20 @@ describe("POST /login", () => {
 
     bcrypt.compare = jest.fn().mockReturnValue(true);
     jwt.sign = jest.fn().mockReturnValue("TOKEN");
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(200);
     expect(res.body).toStrictEqual({ token: "TOKEN", user: mockedUser });
   });
 
   it("Email not provided", async () => {
-    const res = await req(app).post("/api/v1/login").send({ email: "", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "", password: "hello" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.EMPTY_INPUT, message: "Inputs are empty", status: IStatusCode.BAD_REQUEST },
     });
   });
   it("Password not provided", async () => {
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.EMPTY_INPUT, message: "Inputs are empty", status: IStatusCode.BAD_REQUEST },
@@ -198,7 +202,7 @@ describe("POST /login", () => {
   });
   it("Cannot find user", async () => {
     User.findOneAndUpdate = jest.fn().mockReturnValue({ select: jest.fn() });
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.USER_NOT_FOUND, message: "No User found", status: IStatusCode.NOT_FOUND },
@@ -210,7 +214,7 @@ describe("POST /login", () => {
     };
     User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(false);
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.INVALID_PASSWORD, message: "Password is invalid", status: IStatusCode.BAD_REQUEST },
@@ -222,7 +226,7 @@ describe("POST /login", () => {
     };
     User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
     bcrypt.compare = jest.fn().mockReturnValue(true);
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(404);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.CANNOT_GET_JWT_TOKEN, message: "Cannot get User Token", status: IStatusCode.NOT_FOUND },
@@ -236,10 +240,50 @@ describe("POST /login", () => {
       }),
     };
     User.findOneAndUpdate = jest.fn().mockReturnValue(mockReturnObject);
-    const res = await req(app).post("/api/v1/login").send({ email: "test@gmail.com", password: "hello" });
+    const res = await req(app).post(`${ROUTE}/login`).send({ email: "test@gmail.com", password: "hello" });
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
       error: { code: IErrorCode.UNEXCPECTED_ERROR, message: "Unexpected Error", status: IStatusCode.BAD_REQUEST },
     });
+  });
+});
+
+describe("GET /users/all", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("Successful request", async () => {
+    const users = generateUser(1);
+    User.find = jest.fn().mockReturnValue(users);
+    const res = await req(app).get(`${ROUTE}/users/all`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toStrictEqual({ users: users });
+  });
+
+  it("2 Users found", async () => {
+    const users = generateUser(2);
+    User.find = jest.fn().mockReturnValue(users);
+    const res = await req(app).get(`${ROUTE}/users/all`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.users.length).toBe(2);
+    expect(res.body).toStrictEqual({ users: users });
+  });
+  it("5 Users found", async () => {
+    const users = generateUser(5);
+    User.find = jest.fn().mockReturnValue(users);
+    const res = await req(app).get(`${ROUTE}/users/all`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.users.length).toBe(5);
+    expect(res.body).toStrictEqual({ users: users });
+  });
+
+  it("0 User found", async () => {
+    const users = generateUser(0);
+    User.find = jest.fn().mockReturnValue(users);
+    const res = await req(app).get(`${ROUTE}/users/all`);
+    expect(res.statusCode).toBe(404);
+    const error: IError = { message: "No User found", code: 2001, status: 404 };
+    expect(res.body).toStrictEqual({ error });
   });
 });
