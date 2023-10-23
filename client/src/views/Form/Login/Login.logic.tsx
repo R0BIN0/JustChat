@@ -9,7 +9,7 @@ import { useMutation } from "react-query";
 import { login } from "../../../apis/actions/UserAction";
 import { IError } from "../../../apis/IError";
 import { setUser } from "../../../redux/reducers/userReducer";
-import { IUser } from "../../../apis/IUser";
+import { IUserDTO } from "../../../apis/IUserDTO";
 
 export const useLogin = () => {
   // Services
@@ -87,7 +87,7 @@ export const useLogin = () => {
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
    */
-  const onSuccess = useCallback((res: { token: string; user: Omit<IUser, "password"> }): void => {
+  const onSuccess = useCallback((res: { token: string; user: IUserDTO }): void => {
     const { token, user } = res;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
     dispatchCtx(setUser(user));

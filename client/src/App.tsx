@@ -5,6 +5,7 @@ import PrivateRoutes from "./utils/PrivateRoutes";
 import Home from "./views/Home/Home";
 import Register from "./views/Form/Register/Register";
 import useWebSocket from "./hooks/useWebSocket";
+import Chat from "./views/Chat/Chat";
 
 function App() {
   useWebSocket("ws://localhost:8000");
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route element={<Home />} path="/home" />
+            <Route element={<Chat />} path="/chat/:id" />
           </Route>
           <Route element={<Login />} path="/" />
           <Route element={<Register />} path="/register" />

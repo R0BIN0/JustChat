@@ -11,6 +11,10 @@ export enum IErrorCode {
   NAME_ALREADY_USED = 1006,
   SAME_EMAIL = 1007,
   WRONG_MAIL_FORMAT = 1008,
-  // Users (2000 -> 3000)
+  // Users (2001 -> 3000)
   NO_USER = 2001,
+  // Chat (3001 -> 4000)
+  NO_CHAT_FOUND = 3001,
+  CANNOT_CREATE_CHAT = 3002,
+  USERS_NOT_FOUND = 3003,
 }

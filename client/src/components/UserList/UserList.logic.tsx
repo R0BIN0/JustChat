@@ -84,7 +84,6 @@ export const useUserList = (props: IUserList) => {
       let newArray: IUser[] = [];
       const { _id } = userInfo;
       if (_id === user._id) return;
-      console.log(usersCache, "USER CACHE");
       const isHere = usersCache.find((item) => item._id === _id);
       if (isHere) {
         newArray = usersCache.map((item) => (item._id === _id ? { ...item, online: true } : item));

@@ -1,7 +1,7 @@
-import { IUser } from "../../types/IUser.js";
+import { IUserDTO } from "../../types/IUserDTO.js";
 
-export const generateUser = (count: number, isDisconnected?: boolean): Omit<IUser, "password">[] => {
-  const users: Omit<IUser, "password">[] = [];
+export const generateUser = (count: number, isDisconnected?: boolean): IUserDTO[] => {
+  const users: IUserDTO[] = [];
   for (let i = 1; i <= count; i++) {
     const user = {
       name: `User${i}`,

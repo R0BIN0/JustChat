@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "../../apis/IUser";
+import { IUserDTO } from "../../apis/IUserDTO";
 
-const initialState: Omit<IUser, "password"> = {
+const initialState: IUserDTO = {
   name: "",
   email: "",
   pictureId: 1,
@@ -13,13 +13,10 @@ const userSlice = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {
-    setUser(state, action: PayloadAction<Omit<IUser, "password">>) {
-      const { name, email, pictureId, online, _id } = action.payload;
-      state.name = name;
-      state.email = email;
-      state.pictureId = pictureId;
-      state.online = online;
-      state._id = _id;
+    setUser(state, action: PayloadAction<IUserDTO>) {
+      for (const [key, value] of Object.entries(action.payload)) {
+        state[key as keyof IUserDTO] = value as never;
+      }
     },
   },
 });

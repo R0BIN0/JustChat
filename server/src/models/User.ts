@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema(
     pictureId: { type: Number, required: true },
     online: { type: Boolean, required: true },
     password: { type: String, required: true, select: false },
+    conversationIds: { type: [String], select: false },
   },
   { collection: "user-data" }
 );

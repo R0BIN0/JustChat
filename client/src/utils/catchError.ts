@@ -39,6 +39,12 @@ const getMessageError = (err: IErrorCode): string => {
       return "Votre adresse mail est invalide";
     case IErrorCode.NO_USER:
       return "Aucun utilisateur n'a été trouvé.";
+    case IErrorCode.CANNOT_CREATE_CHAT:
+      return "Impossible d'établir la communication. Veuillez recharger la page.";
+    case IErrorCode.NO_CHAT_FOUND:
+      return "Impossible d'établir la communication. Veuillez recharger la page.";
+    case IErrorCode.USERS_NOT_FOUND:
+      return "Impossible d'établir la communication. Veuillez recharger la page.";
     default:
       return "Une erreur est survenue. Veuillez réessayer ultérieurement.";
   }

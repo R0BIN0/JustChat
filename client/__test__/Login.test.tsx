@@ -18,7 +18,7 @@ import Home from "../src/views/Home/Home";
 import Register from "../src/views/Form/Register/Register";
 import { IErrorCode } from "../src/apis/IErrorCode";
 import { IStatusCode } from "../src/apis/IStatusCode";
-import { IUser } from "../src/apis/IUser";
+import { IUserDTO } from "../src/apis/IUserDTO";
 
 let store: IStore;
 export type IUseLogin = ReturnType<typeof useLogin>;
@@ -509,7 +509,7 @@ describe("Handle Login submit behavior", () => {
     initialState.password = "azerty123";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedUser: Omit<IUser, "password"> = {
+    const mockedUser: IUserDTO = {
       name: "Robin",
       email: "test@gmail.com",
       pictureId: 1,
@@ -545,7 +545,7 @@ describe("Handle Login submit behavior", () => {
     );
 
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedUser: Omit<IUser, "password"> = {
+    const mockedUser: IUserDTO = {
       name: "Robin",
       email: "test@gmail.com",
       pictureId: 1,

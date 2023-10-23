@@ -8,8 +8,8 @@ import { setAuth } from "../../../redux/reducers/authReducer";
 import { useMutation } from "react-query";
 import { IError } from "../../../apis/IError";
 import { register } from "../../../apis/actions/UserAction";
-import { IUser } from "../../../apis/IUser";
 import { setUser } from "../../../redux/reducers/userReducer";
+import { IUserDTO } from "../../../apis/IUserDTO";
 
 export const useRegister = () => {
   // Services
@@ -96,7 +96,7 @@ export const useRegister = () => {
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
    */
-  const handleSuccess = useCallback((data: { token: string; user: Omit<IUser, "password"> }): void => {
+  const handleSuccess = useCallback((data: { token: string; user: IUserDTO }): void => {
     const { token, user } = data;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
     dispatchCtx(setUser(user));

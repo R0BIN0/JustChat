@@ -19,7 +19,7 @@ import { register } from "../src/apis/actions/UserAction";
 import Login from "../src/views/Form/Login/Login";
 import { IErrorCode } from "../src/apis/IErrorCode";
 import { IStatusCode } from "../src/apis/IStatusCode";
-import { IUser } from "../src/apis/IUser";
+import { IUserDTO } from "../src/apis/IUserDTO";
 
 let store: IStore;
 export type IUseRegister = ReturnType<typeof useRegister>;
@@ -645,7 +645,7 @@ describe("Handle Register submit behavior", () => {
     initialState.confirmPassword = "azerty";
     initHook();
     const btnSubmit = document.querySelector("#submit") as Element;
-    const mockedUser: Omit<IUser, "password"> = {
+    const mockedUser: IUserDTO = {
       name: "Robin",
       email: "test@gmail.com",
       pictureId: 1,

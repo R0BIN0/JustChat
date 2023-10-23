@@ -6,6 +6,7 @@ import { IStatusCode } from "../types/IStatusCode.js";
 import { tryCatch } from "../utils/tryCatch.js";
 import { AppError } from "../utils/AppError.js";
 import { IErrorCode } from "../types/IErrorCode.js";
+import { IUserDTO } from "../types/IUserDTO.js";
 
 /**
  * This function is used to registrate a new user
@@ -15,7 +16,7 @@ import { IErrorCode } from "../types/IErrorCode.js";
  */
 export const registerController = async (
   req: Request<{}, any, IUser & { confirmPassword: string }>,
-  res: Response<{ token: string; user: Omit<IUser, "password"> }>
+  res: Response<{ token: string; user: IUserDTO }>
 ): Promise<void> => {
   const { name, email, password, confirmPassword } = req.body;
   if (!name || !email || !password || !confirmPassword)
@@ -43,7 +44,7 @@ export const registerController = async (
  */
 export const loginController = async (
   req: Request<{}, any, Pick<IUser, "email" | "password">>,
-  res: Response<{ token: string; user: Omit<IUser, "password"> }>
+  res: Response<{ token: string; user: IUserDTO }>
 ): Promise<void> => {
   const { email, password } = req.body;
   if (!email || !password) throw new AppError(IErrorCode.EMPTY_INPUT, "Inputs are empty", IStatusCode.BAD_REQUEST);

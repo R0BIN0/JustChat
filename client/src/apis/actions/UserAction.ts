@@ -1,19 +1,18 @@
 import axios from "axios";
 import { tryCatch } from "../../utils/tryCatch";
 import { IUser } from "../IUser";
+import { IUserDTO } from "../IUserDTO";
 
 const LOCAL_ROUTE = "http://localhost:8000/api/v1";
 
 const registerAction = async (
   data: IUser & { confirmPassword: string }
-): Promise<{ token: string; user: Omit<IUser, "password"> }> => {
+): Promise<{ token: string; user: IUserDTO }> => {
   const response = await axios.post(`${LOCAL_ROUTE}/register`, data);
   return response.data;
 };
 
-const loginAction = async (
-  data: Pick<IUser, "email" | "password">
-): Promise<{ token: string; user: Omit<IUser, "password"> }> => {
+const loginAction = async (data: Pick<IUser, "email" | "password">): Promise<{ token: string; user: IUserDTO }> => {
   const response = await axios.post(`${LOCAL_ROUTE}/login`, data);
   return response.data;
 };

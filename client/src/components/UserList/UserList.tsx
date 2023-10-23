@@ -5,8 +5,6 @@ import { IUserList } from "../../types/Users/IUserList";
 import "./UserList.css";
 
 const UserList: FC<IUserList> = (props) => {
-  console.log("RENDER !");
-
   const logic = useUserList(props);
   if (logic.isLoading || logic.error) return <></>;
 

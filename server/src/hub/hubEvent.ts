@@ -1,4 +1,6 @@
+import { Chat } from "../models/Chat.js";
 import { User } from "../models/User.js";
+import { IMessage } from "../types/IMessage.js";
 import { ISocketEvent } from "../types/ISocketEvent.js";
 import { IUser } from "../types/IUser.js";
 import WebSocket from "ws";
@@ -21,6 +23,16 @@ export const userIsDisconnected = async (user: IUser) => {
   await User.findOneAndUpdate({ _id }, { online: false });
   const event = { type: ISocketEvent.USER_IS_DISCONNECTED, data: user };
   sendToClient(event, "ALL");
+};
+
+export const sendMessage = async (message: IMessage) => {
+  const chat = await Chat.findOne({ _id: message.conversationId });
+  if (!chat) return;
+  delete message["conversationId"];
+  chat.messages.push(message);
+  chat.save();
+  const event = { type: ISocketEvent.SEND_MESSAGE, data: message };
+  sendToClient(event, [message.receiver]);
 };
 
 const sendToClient = (evt: { type: ISocketEvent; data: unknown }, target: string[] | "ALL") => {

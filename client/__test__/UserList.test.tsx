@@ -7,11 +7,11 @@ import { vi as jest } from "vitest";
 
 import UserList from "../src/components/UserList/UserList";
 import { useUserList } from "../src/components/UserList/UserList.logic";
-import { IUser } from "../src/apis/IUser";
 import axios from "axios";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { initialState, IState } from "../src/components/UserList/UserList.reducer";
 import { setUser } from "../src/redux/reducers/userReducer";
+import { IUserDTO } from "../src/apis/IUserDTO";
 
 let queryClient = new QueryClient();
 let store: IStore;
@@ -31,7 +31,7 @@ jest.mock("../src/apis/actions/UserAction", () => ({
   getAllUsers: jest.fn(),
 }));
 
-const buildUser = (idx: number, isDisconnected?: boolean): Omit<IUser, "password"> => {
+const buildUser = (idx: number, isDisconnected?: boolean): IUserDTO => {
   return {
     name: `User${idx}`,
     email: `user${idx}@example.com`,
@@ -42,7 +42,7 @@ const buildUser = (idx: number, isDisconnected?: boolean): Omit<IUser, "password
 };
 
 const generateMockedUser = (count: number, isDisconnected?: boolean) => {
-  const users: Omit<IUser, "password">[] = [];
+  const users: IUserDTO[] = [];
   for (let i = 1; i <= count; i++) {
     users.push(buildUser(i, isDisconnected));
   }

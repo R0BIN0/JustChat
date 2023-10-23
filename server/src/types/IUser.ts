@@ -1,8 +1,6 @@
-export type IUser = {
-  name: string;
-  email: string;
+import { IUserDTO } from "./IUserDTO.js";
+
+export type IUser = IUserDTO & {
   password: string;
-  pictureId: number;
-  online: boolean;
-  _id: string;
+  conversationIds: string[];
 };
