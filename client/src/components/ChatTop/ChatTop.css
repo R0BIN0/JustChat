@@ -1,0 +1,35 @@
+.chatTop-container {
+  width: 100%;
+  background-color: #292a33;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  height: 60px;
+}
+
+.chatTop-user-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.chatTop-user-card img {
+  width: 30px;
+}
+.chatTop-user-card p {
+  color: white;
+  margin-left: 0.75rem;
+}
+
+.chatTop-user-card div {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-left: 0.75rem;
+}
+.chatTop-user-card div[data-online~="true"] {
+  background: #3dec20;
+}
+.chatTop-user-card div[data-online~="false"] {
+  background: var(--secondary-color);
+}

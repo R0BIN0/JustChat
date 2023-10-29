@@ -1,0 +1,44 @@
+.input-message-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 1rem 2rem;
+}
+
+.input-message-inp {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  background: #292a33;
+  height: 50px;
+}
+
+.form-input::placeholder {
+  color: var(--text-color);
+}
+
+.input-message-submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--CTA-color);
+  color: var(--primary-color);
+  padding: 1rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  opacity: 0.5;
+  transition: 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  position: relative;
+  margin-left: 1rem;
+}
+
+.input-message-submit[data-form-validity~="true"] {
+  opacity: 1;
+  box-shadow: 0px 4px 13px 3px rgba(209, 203, 50, 0.25);
+}

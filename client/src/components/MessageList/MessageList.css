@@ -1,0 +1,11 @@
+.messageList-container {
+  padding: 1rem 2rem 2.5rem 2rem;
+  height: calc(100% - 4rem);
+  overflow-y: scroll;
+  position: relative;
+}
+
+.messageList-container::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}

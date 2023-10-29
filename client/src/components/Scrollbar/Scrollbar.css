@@ -1,0 +1,29 @@
+.scrollbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 10px;
+  border-radius: 30px;
+  background-color: #252630;
+  z-index: 100;
+  height: calc(100% - 10rem);
+  margin-top: 70px;
+  margin-right: 1rem;
+}
+.scrollbar div {
+  background-color: #30313b;
+  width: 10px;
+  height: 50px;
+  border-radius: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.scrollbar-click-event {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 100%;
+}

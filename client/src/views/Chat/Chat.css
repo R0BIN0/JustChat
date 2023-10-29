@@ -1,0 +1,22 @@
+.chat-container {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  height: 100vh;
+  max-height: 100vh;
+}
+
+.chat-user-list {
+  width: 100%;
+  height: 100%;
+  background-color: #1d1e25;
+}
+
+.chat-top-container {
+  width: 100%;
+}
+
+.chat-content-container {
+  width: 100%;
+  height: calc(100vh - 60px);
+  position: relative;
+}
