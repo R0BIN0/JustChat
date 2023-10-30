@@ -3,14 +3,16 @@ import UserList from "../../components/UserList/UserList";
 import InputSearch from "../../components/InputSearch/InputSearch";
 import { useHome } from "./Home.logic";
 
-const Home = () => {
+const Home = (props: { onlyUserList: boolean }) => {
   const logic = useHome();
   return (
     <div className="home-container">
-      <div className="home-content">
-        <div className="home-title-container">
-          <h1>Discuter avec tout le monde !</h1>
-        </div>
+      <div className="home-content" data-only-user-list={props.onlyUserList}>
+        {!props.onlyUserList && (
+          <div className="home-title-container">
+            <h1>Discuter avec tout le monde !</h1>
+          </div>
+        )}
         {!logic.state.isLoaded ? (
           displayLoading()
         ) : logic.state.hasError ? (

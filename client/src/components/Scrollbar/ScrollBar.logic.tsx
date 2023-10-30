@@ -25,14 +25,11 @@ export const useScrollbar = () => {
       componentIsUnmounting();
       canScrollRef.current = true;
     };
-  }, []);
+  }, [contact._id]);
 
   useEffect(() => {
-    if (!queryChat.isLoading) {
-      console.log("on passel à ?");
-      onScroll(true);
-    }
-  }, [queryChat.isLoading, scroll.chatContainerRef]);
+    if (!queryChat.isLoading) onScroll(true);
+  }, [queryChat.isLoading, scroll.chatContainerRef, contact._id]);
 
   useEffect(() => {
     dispatchCtx(setScrollToBottom(onScroll));

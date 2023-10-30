@@ -24,7 +24,7 @@ export const useMessageList = () => {
 
   useEffect(() => {
     dispatchCtx(setChatContainerRef(chatContainerRef.current));
-  }, []);
+  }, [contact._id]);
 
   useEffect(() => {
     if (!webSocket) return;

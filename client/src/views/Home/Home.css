@@ -17,6 +17,10 @@
   margin-top: 8rem;
 }
 
+.home-content[data-only-user-list~="true"] {
+  margin-top: 2rem;
+}
+
 .home-title-container {
   display: flex;
   justify-content: center;
