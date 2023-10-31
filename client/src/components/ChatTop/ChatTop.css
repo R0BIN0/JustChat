@@ -1,8 +1,6 @@
 .chatTop-container {
   width: 100%;
   background-color: #292a33;
-  display: flex;
-  justify-content: flex-start;
   align-items: center;
   padding: 1rem 1.5rem;
   height: 60px;
@@ -10,26 +8,102 @@
 
 .chatTop-user-card {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.chatTop-user-card-left {
+  display: flex;
   align-items: center;
 }
-.chatTop-user-card img {
+
+.chatTop-user-card-left img {
   width: 30px;
 }
-.chatTop-user-card p {
+.chatTop-user-card-left p {
   color: white;
   margin-left: 0.75rem;
 }
 
-.chatTop-user-card div {
+.chatTop-online-container {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  margin-left: 0.75rem;
+  margin-left: 0.5rem;
 }
-.chatTop-user-card div[data-online~="true"] {
+.chatTop-online-container[data-online~="true"] {
   background: #3dec20;
 }
-.chatTop-user-card div[data-online~="false"] {
+.chatTop-online-container[data-online~="false"] {
   background: var(--secondary-color);
+}
+
+.chatTop-user-card-right {
+  border: 1px solid var(--secondary-color);
+  padding: 0.25rem;
+  border-radius: 5px;
+  display: none;
+}
+
+.chatTop-user-card-right button {
+  outline: none;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatTop-user-card-right button svg {
+  padding: 0.2rem;
+  width: 25px;
+  height: 25px;
+}
+
+.chatTop-user-card-right button svg path {
+  fill: white;
+}
+
+.chatTop-home-modal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  background-color: var(--primary-color);
+}
+
+.chatTop-home-modal-banner {
+  height: 60px;
+  background-color: #292a33;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.chatTop-home-modal-banner button {
+  border: 1px solid var(--secondary-color);
+  padding: 0.25rem;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatTop-home-modal-banner svg {
+  padding: 0.35rem;
+  width: 25px;
+  height: 25px;
+}
+
+.chatTop-home-modal-banner svg path {
+  stroke-width: 3px;
+}
+
+@media screen and (max-width: 850px) {
+  .chatTop-user-card-right {
+    display: initial;
+  }
 }

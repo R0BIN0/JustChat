@@ -1,7 +1,6 @@
 .home-container {
   width: 100%;
   min-height: 650px;
-  height: 100vh;
   background: var(--primary-color);
   display: flex;
   justify-content: center;

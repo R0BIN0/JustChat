@@ -2,8 +2,9 @@ import "./Home.css";
 import UserList from "../../components/UserList/UserList";
 import InputSearch from "../../components/InputSearch/InputSearch";
 import { useHome } from "./Home.logic";
+import { memo } from "react";
 
-const Home = (props: { onlyUserList: boolean }) => {
+const Home = memo((props: { onlyUserList: boolean }) => {
   const logic = useHome();
   return (
     <div className="home-container">
@@ -33,7 +34,7 @@ const Home = (props: { onlyUserList: boolean }) => {
       </div>
     </div>
   );
-};
+});
 
 const displayLoading = () => (
   <div className="home-data-container">
