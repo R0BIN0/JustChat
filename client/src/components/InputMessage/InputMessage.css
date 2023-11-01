@@ -9,6 +9,11 @@
   padding: 1rem 2rem;
 }
 
+.input-message-content {
+  width: 100%;
+  position: relative;
+}
+
 .input-message-inp {
   width: 100%;
   padding: 1rem;
@@ -21,6 +26,17 @@
 
 .form-input::placeholder {
   color: var(--text-color);
+}
+
+.input-message-button-container {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.75rem;
 }
 
 .input-message-submit {

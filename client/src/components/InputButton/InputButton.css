@@ -1,0 +1,24 @@
+.input-button-container {
+  width: max-content;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0.35rem;
+}
+
+.input-button-container[data-disabled~="true"] button {
+  cursor: not-allowed;
+}
+
+.input-button-container path {
+  fill: var(--secondary-color);
+}
+
+.input-button-container[data-disabled~="true"] button path {
+  fill: #383a46;
+}
+
+.input-button-container[data-disabled~="false"] button:hover path {
+  fill: rgb(217, 223, 240);
+}
