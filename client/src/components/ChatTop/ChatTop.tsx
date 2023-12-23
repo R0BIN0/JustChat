@@ -1,5 +1,4 @@
 import "./ChatTop.css";
-import Home from "../../views/Home/Home";
 import { useChatTop } from "./ChatTop.logic";
 import UsersIcon from "../../assets/svg/UsersIcon.svg?react";
 import CrossIcon from "../../assets/svg/CrossIcon.svg?react";
@@ -30,7 +29,7 @@ const ChatTop = () => {
               <CrossIcon />
             </button>
           </div>
-          <Home onlyUserList={true} />
+          {/* <Home onlyUserList={true} /> */}
         </div>
       )}
     </>

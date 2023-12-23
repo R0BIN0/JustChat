@@ -2,6 +2,7 @@ import axios from "axios";
 import { tryCatch } from "../../utils/tryCatch";
 import { IUser } from "../IUser";
 import { IUserDTO } from "../IUserDTO";
+import { FETCH_USERS_LIMIT } from "../../const/const";
 
 const LOCAL_ROUTE = "http://localhost:8000/api/v1";
 
@@ -17,11 +18,21 @@ const loginAction = async (data: Pick<IUser, "email" | "password">): Promise<{ t
   return response.data;
 };
 
-const getAllUsersAction = async (): Promise<{ users: IUser[] }> => {
-  const response = await axios.get(`${LOCAL_ROUTE}/users/all`);
-  return response.data.users;
+const getUsersAction = async ({
+  pageParam = 0,
+  queryKey,
+}: {
+  pageParam: number;
+  queryKey: string[];
+}): Promise<{ users: IUser[]; total: number }> => {
+  const userId = queryKey[1];
+  const searchTerm = queryKey[2];
+  const response = await axios.get(
+    `${LOCAL_ROUTE}/users/all?userId=${userId}&search=${searchTerm}&start=${pageParam}&limit=${FETCH_USERS_LIMIT}`
+  );
+  return response.data;
 };
 
 export const login = tryCatch(loginAction);
 export const register = tryCatch(registerAction);
-export const getAllUsers = tryCatch(getAllUsersAction);
+export const getUsers = tryCatch(getUsersAction);

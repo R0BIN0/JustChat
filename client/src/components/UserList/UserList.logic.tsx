@@ -1,68 +1,95 @@
-import { IUser } from "../../apis/IUser";
-import { useCallback, useEffect, useReducer, useRef } from "react";
-import { useSelector } from "react-redux";
-import { IRootState } from "../../redux/store";
-import { parseSocketEvent } from "../../utils/parseSocketEvent";
-import { ISocketEvent } from "../../apis/ISocketEvent";
-import { reducer, initialState, IState, IAction, componentIsUnmounting } from "./UserList.reducer";
+import { useCallback, useEffect, useState } from "react";
 import { IUserList } from "../../types/Users/IUserList";
-import { IError } from "../../apis/IError";
-import { useQueryCache } from "../../hooks/useQueryCache/useQueryCache";
-import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
 import { useUserCache } from "../../hooks/useQueryCache/useUserCache";
+import { ISocketEvent } from "../../apis/ISocketEvent";
+import { parseSocketEvent } from "../../utils/parseSocketEvent";
+import { IUser } from "../../apis/IUser";
+import { IRootState } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { queryClient } from "../../main";
+import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
+import { getIndexFromNumber } from "../../utils/getIndexFromNumber";
+import { FETCH_USERS_LIMIT } from "../../const/const";
+import { IQueryUser } from "../../types/Query/IQueryUsers";
 
 export const useUserList = (props: IUserList) => {
-  // Services
-  const user = useSelector((s: IRootState) => s.user);
   const { webSocket, emitEvent } = useSelector((s: IRootState) => s.socket);
+  const user = useSelector((s: IRootState) => s.user);
 
   // States
-  const [state, dispatch] = useReducer(reducer, { ...initialState });
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // Refs
-  const usersRef = useRef<IUser[]>([]);
+  const {
+    queryUsers: { hasNextPage, data, fetchNextPage, isFetching },
+    removeUnusedQueries,
+  } = useUserCache(searchTerm);
 
-  // useQuery
-  const { mutate } = useQueryCache();
-  const { queryUsers } = useUserCache();
+  const users = data?.pages.map((p) => p.users.map((u) => u)).flat() ?? [];
 
-  // UseEffect
   useEffect(() => {
     props.onRef({ handleSearchInput });
-    return () => componentIsUnmounting();
   }, []);
 
   useEffect(() => {
-    usersRef.current = queryUsers.data ?? [];
-  }, [queryUsers.data]);
-
-  useEffect(() => {
-    if (!queryUsers.isLoading) props.toggleIsLoaded();
-    if (queryUsers.error) props.handleError(queryUsers.error as IError);
-  }, [queryUsers.isLoading, queryUsers.error]);
+    if (!isFetching || hasNextPage) hasScrollbar();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetching, hasNextPage]);
 
   useEffect(() => {
     if (!webSocket) return;
     setUserIsConnected();
-    webSocket.addEventListener("message", onEvent);
-    return () => {
-      webSocket.removeEventListener("message", onEvent);
-    };
   }, [webSocket]);
 
   useEffect(() => {
     if (!webSocket) return;
     webSocket.addEventListener("message", onEvent);
-    return () => {
-      webSocket.removeEventListener("message", onEvent);
-    };
-  }, [webSocket, queryUsers.data]);
+    return () => webSocket.removeEventListener("message", onEvent);
+  }, [webSocket, users]);
 
-  const setUserIsConnected = useCallback(() => {
+  const handleScroll = useCallback(() => {
+    if (!hasNextPage || isFetching) return;
+    const scrollTop = document.documentElement.scrollTop;
+    const offsetHeight = document.documentElement.offsetHeight;
+    const innerHeight = window.innerHeight;
+    if (scrollTop + innerHeight >= offsetHeight) fetchNextPage();
+  }, [hasNextPage, isFetching]);
+
+  /**
+   * This function is used to update "searchTerm" query to search user in the database.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input event
+   * @returns {void}
+   */
+  const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    removeUnusedQueries();
+  }, []);
+
+  /**
+   * This function determine if scrollbar is displayed on the screen or not. If not, we fetch users until is displayed to fill the page
+   * @returns {void}
+   */
+  const hasScrollbar = useCallback((): void => {
+    const pageHeight = document.documentElement.scrollHeight;
+    const windowHeight = window.innerHeight;
+    if (pageHeight === windowHeight) fetchNextPage();
+  }, []);
+
+  /**
+   * This function notify to all that we are connected
+   * @returns {void}
+   */
+  const setUserIsConnected = useCallback((): void => {
     if (!user._id) return;
     emitEvent(ISocketEvent.USER_IS_CONNECTED, user);
   }, []);
 
+  /**
+   * This function group all socket events
+   * @param {unknown} event - Event type sended from server side
+   * @returns {void}
+   */
   const onEvent = (event: unknown) => {
     const { type, data: dataEvent } = parseSocketEvent(event);
     switch (type) {
@@ -77,39 +104,88 @@ export const useUserList = (props: IUserList) => {
     }
   };
 
-  const onUserConnected = useCallback(
-    (userInfo: IUser): void => {
-      let newArray: IUser[] = [];
-      const { _id } = userInfo;
-      if (_id === user._id) return;
-      const isHere = queryUsers.data.find((item) => item._id === _id);
-      if (isHere) {
-        newArray = queryUsers.data.map((item) => (item._id === _id ? { ...item, online: true } : item));
+  /**
+   * This function is use to handle any behavior about user connection receive from the socket and update users cache
+   * @param {IUser} updatedUser - Event type sended from server side
+   * @returns {void}
+   */
+  const onUserConnected = (updatedUser: IUser): void => {
+    if (updatedUser._id === user._id) return;
+    updateUser(updatedUser, { isConnected: true });
+    if (!hasNextPage) {
+      let updateAllQueries: boolean = false;
+      if (searchTerm) updateAllQueries = !!updatedUser.name.toLowerCase().includes(searchTerm.toLowerCase());
+      if (updateAllQueries) {
+        queryClient.setQueriesData([QUERY_KEY.USERS, user._id], (oldData: IQueryUser | undefined) =>
+          handleNewUser(updatedUser, oldData)
+        );
       } else {
-        newArray = [...queryUsers.data, userInfo];
+        queryClient.setQueryData([QUERY_KEY.USERS, user._id, ""], (oldData: IQueryUser | undefined) =>
+          handleNewUser(updatedUser, oldData)
+        );
       }
-      mutate({ data: newArray, queryKey: [QUERY_KEY.USERS] });
-    },
-    [queryUsers.data]
-  );
+    }
+  };
 
-  const onUserDisconnected = useCallback(
-    (userInfo: IUser): void => {
-      const { _id } = userInfo;
-      if (_id === user._id) return;
-      const newArray: IUser[] = queryUsers.data.map((item) => (item._id === _id ? { ...item, online: false } : item));
-      mutate({ data: newArray, queryKey: [QUERY_KEY.USERS] });
-    },
-    [queryUsers.data]
-  );
+  /**
+   * This function is use to handle any behavior about user disconnection receive from the socket and update users cache
+   * @param {IUser} updatedUser - Event type sended from server side
+   * @returns {void}
+   */
+  const onUserDisconnected = (updatedUser: IUser): void => updateUser(updatedUser, { isConnected: false });
 
-  const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    const payload: IState = { ...state, search: value };
-    dispatch({ type: IAction.SEARCH_USER, payload });
-  }, []);
+  /**
+   * This function is use to handle any behavior about user update receive from the socket and update users cache
+   * @param {IUser} updatedUser - Event type sended from server side
+   * @param {boolean} isConnected - To know the current connection state of user
+   * @returns {void}
+   */
+  const updateUser = (updatedUser: IUser, { isConnected }: { isConnected: boolean }): void => {
+    queryClient.setQueriesData([QUERY_KEY.USERS, user._id], (oldData: IQueryUser | undefined) => {
+      if (!oldData) return { pages: [], pageParams: [] };
+      const userIdx = getUserIndexInQuery(updatedUser, oldData);
+      if (userIdx === -1) return { ...oldData };
 
-  const isHide = (name: string) => !name.toLowerCase().includes(state.search.toLowerCase());
+      const updatedPage = oldData.pages[userIdx].users.map((u) =>
+        u._id === updatedUser._id ? { ...u, online: isConnected } : u
+      );
+      oldData.pages[userIdx] = { users: updatedPage, total: oldData.pages[userIdx].total };
+      return { ...oldData };
+    });
+  };
 
-  return { state, user, isLoading: queryUsers.isLoading, error: queryUsers.error, isHide, users: queryUsers.data };
+  /**
+   * This function is use to handle any behavior about user first connection receive from the socket and update users cache
+   * @param {IUser} updatedUser - Event type sended from server side
+   * @param {IQueryUser | undefined} oldData - Previous data from users cache
+   * @returns {IQueryUser}
+   */
+  const handleNewUser = (updatedUser: IUser, oldData: IQueryUser | undefined): IQueryUser => {
+    if (!oldData) return { pages: [], pageParams: [] };
+    const userIdx = getUserIndexInQuery(updatedUser, oldData);
+    if (userIdx >= 0) return { ...oldData };
+    const lastPageIndex = oldData.pages.length - 1;
+    const isFull = oldData.pages[lastPageIndex].users.length === FETCH_USERS_LIMIT;
+    if (isFull) {
+      oldData.pages.push({ users: [updatedUser], total: oldData.pages[lastPageIndex].total + 1 }); // Create new Array
+    } else {
+      oldData.pages[lastPageIndex].users.push(updatedUser); // Update last array
+    }
+    return { ...oldData };
+  };
+
+  return { users, isFetching, hasNextPage };
+};
+
+/**
+ * This function is use to get index of user in the selected cache
+ * @param {IUser} updatedUser - Event type sended from server side
+ * @param {IQueryUser} oldData - Previous data from users cache
+ * @returns {number}
+ */
+const getUserIndexInQuery = (updatedUser: IUser, oldData: IQueryUser): number => {
+  const allUsersInQuery = oldData.pages.map((p) => p.users.map((u) => u)).flat() ?? [];
+  const userIdx = allUsersInQuery.findIndex((u) => u._id === updatedUser._id);
+  if (userIdx === -1) return -1;
+  return getIndexFromNumber(userIdx);
 };

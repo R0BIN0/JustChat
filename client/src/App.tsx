@@ -15,7 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route element={<PrivateRoutes />}>
-            <Route element={<Home onlyUserList={false} />} path="/home" />
+            <Route element={<Home />} path="/home" />
             <Route element={<Chat />} path="/chat/:id" />
           </Route>
           <Route element={<Login />} path="/" />

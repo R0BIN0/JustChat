@@ -3,3 +3,11 @@
   color: white;
   height: min-content;
 }
+
+.userList-no-user-container {
+  margin: 2rem 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
