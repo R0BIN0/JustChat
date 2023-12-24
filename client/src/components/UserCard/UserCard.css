@@ -28,6 +28,31 @@
 }
 
 .userCard-left-text-container {
+  position: relative;
+}
+
+.userCard-left-text-tooltip-container {
+  position: absolute;
+  top: -45px;
+  left: 0;
+  width: 100%;
+  padding: 0.5rem;
+  justify-content: center;
+  align-items: flex-start;
+  flex-flow: column nowrap;
+  background-color: rgb(34, 34, 37);
+  font-size: 0.65rem;
+  width: max-content;
+  border-radius: 5px;
+  display: flex;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s;
+}
+
+.userCard-left-text-container:hover .userCard-left-text-tooltip-container {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .userCard-left-text-container p {

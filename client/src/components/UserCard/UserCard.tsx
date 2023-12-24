@@ -2,6 +2,7 @@ import { FC, memo } from "react";
 import "./UserCard.css";
 import { IUser } from "../../apis/IUser";
 import { Link } from "react-router-dom";
+import { shouldSubstring } from "../../utils/shouldSubstring";
 
 const UserCard: FC<IUser> = memo((props) => {
   const { online } = props;
@@ -13,8 +14,12 @@ const UserCard: FC<IUser> = memo((props) => {
           <img src={`/assets/avatar/avatar_${props.pictureId}.png`} alt="User Avatar" />
         </div>
         <div className="userCard-left-text-container">
-          <p>{props.name}</p>
-          <span>{props.email}</span>
+          <div className="userCard-left-text-tooltip-container">
+            <p>Name: {props.name}</p>
+            <p>Email: {props.email}</p>
+          </div>
+          <p>{shouldSubstring(props.name, 17)}</p>
+          <span>{shouldSubstring(props.email, 23)}</span>
         </div>
       </div>
       <div className="userCard-right" data-online={online}>
