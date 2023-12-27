@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "react-query";
-import { IUser } from "../../apis/IUser";
-import { QUERY_KEY } from "./queryKey";
-import { FETCH_USERS_LIMIT } from "../../const/const";
+import { IUser } from "../../apis/IUser.ts";
+import { QUERY_KEY } from "./queryKey.ts";
+import { FETCH_USERS_LIMIT } from "../../const/const.ts";
 import { queryOptions } from "./queryOptions.ts";
 import { queryClient } from "../../main.tsx";
 import { getUsers } from "../../apis/actions/UserAction.ts";

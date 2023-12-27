@@ -89,6 +89,23 @@ export const getAllUsersController = async (
   res.status(IStatusCode.OK).json({ users, total });
 };
 
+/**
+ * This function is used to get all Users from the DB
+ * @param {Request<{}, any, Pick<IUser, "_id">>} req - Request which contain userId to find user
+ * @param {Response<{ user: IUser }>} res - User found in the Database
+ * @returns {void}
+ */
+export const getUserByIdController = async (
+  req: Request<{}, any, Pick<IUser, "_id">>,
+  res: Response<{ user: IUser }>
+): Promise<void> => {
+  const { _id } = req.body;
+  const user = await User.findById(_id);
+  if (!user) throw "error";
+  res.status(IStatusCode.OK).json({ user });
+};
+
 export const login = tryCatch(loginController);
 export const register = tryCatch(registerController);
 export const getAllUsers = tryCatch(getAllUsersController);
+export const getUserById = tryCatch(getUserByIdController);

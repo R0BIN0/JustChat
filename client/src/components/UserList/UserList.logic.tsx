@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { IUserList } from "../../types/Users/IUserList";
-import { useUserCache } from "../../hooks/useQueryCache/useUserCache";
+import { useUserCache } from "../../hooks/useQueryCache/useUsersCache";
 import { ISocketEvent } from "../../apis/ISocketEvent";
 import { parseSocketEvent } from "../../utils/parseSocketEvent";
 import { IUser } from "../../apis/IUser";

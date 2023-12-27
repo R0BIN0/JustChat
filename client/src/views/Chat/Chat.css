@@ -1,7 +1,5 @@
 .chat-container {
   width: 100%;
-  display: grid;
-  grid-template-columns: 400px 1fr;
   height: 100vh;
   max-height: 100vh;
 }

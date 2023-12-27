@@ -5,7 +5,6 @@ import ScrollBar from "../Scrollbar/ScrollBar";
 
 const MessageList = () => {
   const logic = useMessageList();
-  // if (logic.isLoading) return <></>;
 
   return (
     <div ref={logic.chatContainerRef} className="messageList-container">

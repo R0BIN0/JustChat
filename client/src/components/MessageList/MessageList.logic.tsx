@@ -10,6 +10,7 @@ import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
 import { IUserDTO } from "../../apis/IUserDTO";
 import { useChatCache } from "../../hooks/useQueryCache/useChatCache";
 import { setChatContainerRef } from "../../redux/reducers/chatReducer";
+import { useContactCache } from "../../hooks/useQueryCache/useContactCache";
 
 export const useMessageList = () => {
   // Services
@@ -17,14 +18,16 @@ export const useMessageList = () => {
   const { mutate } = useQueryCache();
   const { webSocket } = useSelector((s: IRootState) => s.socket);
   const user = useSelector((s: IRootState) => s.user);
-  const { contact, scroll } = useSelector((s: IRootState) => s.chat);
-  const { queryChat } = useChatCache(contact._id);
+  const { scroll } = useSelector((s: IRootState) => s.chat);
+  const { queryContact } = useContactCache();
+  const { queryChat } = useChatCache();
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const dispatchCtx = useDispatch<IAppDispatch>();
 
   useEffect(() => {
     dispatchCtx(setChatContainerRef(chatContainerRef.current));
-  }, [contact._id]);
+  }, []);
 
   useEffect(() => {
     if (!webSocket) return;
@@ -60,6 +63,7 @@ export const useMessageList = () => {
   };
 
   const getInfos = (item: IMessage): Pick<IUserDTO, "name" | "pictureId"> => {
+    const contact = queryContact.data!.user;
     const isMe = item.sender === user._id;
     if (isMe) {
       return { name: user.name, pictureId: user.pictureId };
@@ -70,9 +74,7 @@ export const useMessageList = () => {
 
   return {
     chat: queryChat.data,
-    isLoading: queryChat.isLoading,
     isSameSender,
-    contact,
     getInfos,
     chatContainerRef,
   };

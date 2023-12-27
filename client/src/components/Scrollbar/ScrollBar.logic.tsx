@@ -9,8 +9,8 @@ import { useChatCache } from "../../hooks/useQueryCache/useChatCache";
 
 export const useScrollbar = () => {
   // Services
-  const { contact, scroll } = useSelector((s: IRootState) => s.chat);
-  const { queryChat } = useChatCache(contact._id);
+  const { scroll } = useSelector((s: IRootState) => s.chat);
+  const { queryChat } = useChatCache();
 
   const dispatchCtx = useDispatch<IAppDispatch>();
 
@@ -25,11 +25,11 @@ export const useScrollbar = () => {
       componentIsUnmounting();
       canScrollRef.current = true;
     };
-  }, [contact._id]);
+  }, []);
 
   useEffect(() => {
     if (!queryChat.isLoading) onScroll(true);
-  }, [queryChat.isLoading, scroll.chatContainerRef, contact._id]);
+  }, [queryChat.isLoading, scroll.chatContainerRef]);
 
   useEffect(() => {
     dispatchCtx(setScrollToBottom(onScroll));

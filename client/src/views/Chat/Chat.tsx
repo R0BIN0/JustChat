@@ -1,15 +1,17 @@
-import MessageList from "../../components/MessageList/MessageList";
-import InputMessage from "../../components/InputMessage/InputMessage";
 import "./Chat.css";
 import ChatTop from "../../components/ChatTop/ChatTop";
+import InputMessage from "../../components/InputMessage/InputMessage";
+import MessageList from "../../components/MessageList/MessageList";
 import { useChat } from "./Chat.logic";
+import Loader from "../../components/Loader/Loader";
 
 const Chat = () => {
-  useChat();
+  const logic = useChat();
+
+  if (logic.isLoading) return <Loader fullSize />;
 
   return (
     <div className="chat-container">
-      <div className="chat-user-list">{/* <Home onlyUserList={true} /> */}</div>
       <div className="chat-content">
         <div className="chat-top-container">
           <ChatTop />
