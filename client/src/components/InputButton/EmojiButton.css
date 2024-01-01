@@ -1,0 +1,73 @@
+.emoji-button-container {
+  width: max-content;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0.35rem;
+  position: relative;
+}
+
+.emoji-button-picker-container {
+  position: absolute;
+  top: -460px;
+  left: -242.5px;
+  background: #292a33 !important;
+}
+
+.emoji-button-container path {
+  fill: var(--secondary-color);
+}
+
+/* Relative to Emoji Picker */
+
+.epr-main {
+  border: none !important;
+  background: none !important;
+}
+
+.epr-body::-webkit-scrollbar {
+  display: none !important;
+}
+
+.epr-header {
+  border-radius: 0px !important;
+}
+
+.epr-header-overlay {
+  background: #292a33 !important;
+}
+
+.epr-search {
+  background: #1d1e24 !important;
+  border: none !important;
+  color: white !important;
+  font-family: "Onest", sans-serif !important;
+}
+
+.epr-search::placeholder {
+  font-family: "Onest", sans-serif !important;
+}
+
+.epr-category-nav {
+  display: none !important;
+}
+
+.epr-emoji-category-label {
+  font-family: "Onest", sans-serif !important;
+  background: #292a33 !important;
+  color: white !important;
+  font-weight: 400 !important;
+}
+
+.epr-emoji-category {
+  background: #292a33 !important;
+}
+
+.epr-emoji-img:hover {
+  background-color: #4c4e5a !important;
+}
+
+.epr-preview {
+  display: none !important;
+}

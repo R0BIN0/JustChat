@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useQueryCache } from "../../hooks/useQueryCache/useQueryCache";
 import { IRootState } from "../../redux/store";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { ISocketEvent } from "../../apis/ISocketEvent";
 import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
 import { useChatCache } from "../../hooks/useQueryCache/useChatCache";
-import { useEffect } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+import { reducer, initialState, IAction } from "./InputMessage.reducer";
 
 export const useInputMessage = () => {
   // Services
@@ -16,14 +16,18 @@ export const useInputMessage = () => {
   const userId = useSelector((s: IRootState) => s.user._id);
   const { queryChat } = useChatCache();
   const scrollToBottom = useSelector((s: IRootState) => s.chat.scroll.scrollToBottom);
-  const { register, handleSubmit, reset } = useForm<{ message: string }>();
+
+  // States
+  const [state, dispatch] = useReducer(reducer, { ...initialState });
+
+  // Ref
+  const messageRef = useRef<string>("");
 
   useEffect(() => {
     window.addEventListener("keypress", submitWithKeypress);
-    return () => {
-      window.removeEventListener("keypress", submitWithKeypress);
-    };
-  }, [queryChat.data.messages]);
+    messageRef.current = state.message;
+    return () => window.removeEventListener("keypress", submitWithKeypress);
+  }, [state.message]);
 
   /**
    * This function is used to submit form by pressing Enter key
@@ -32,7 +36,28 @@ export const useInputMessage = () => {
    */
   const submitWithKeypress = (e: KeyboardEvent): void => {
     if (e.key !== "Enter") return;
-    handleSubmit(onSubmit)();
+    handleSubmit();
+  };
+
+  /**
+   * This function is used to add emoji to message input and update value with the new emoji added.
+   * @param {string} emoji - The emoji string
+   * @returns {void}
+   */
+  const setEmoji = useCallback((emoji: string): void => {
+    const updatedInp = `${messageRef.current}${emoji}`;
+    const payload = { ...state, message: updatedInp };
+    dispatch({ type: IAction.SET_MESSAGE, payload });
+  }, []);
+
+  /**
+   * This function is used to fill state with input data that user insert.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input event
+   * @returns {void}
+   */
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const payload = { ...state, message: e.target.value };
+    dispatch({ type: IAction.SET_MESSAGE, payload });
   };
 
   /**
@@ -40,10 +65,10 @@ export const useInputMessage = () => {
    * @param {{message: string}} formData - Input values from useForm
    * @returns {void}
    */
-  const onSubmit: SubmitHandler<{ message: string }> = (formData: { message: string }): void => {
+  const handleSubmit = (): void => {
     const message = {
       conversationId: queryChat.data._id,
-      content: formData.message,
+      content: state.message,
       date: new Date(),
       receiver: params.id,
       sender: userId,
@@ -52,8 +77,8 @@ export const useInputMessage = () => {
     mutate({ data: newCache, queryKey: [QUERY_KEY.CHAT, userId, params.id] });
     emitEvent(ISocketEvent.SEND_MESSAGE, message);
     scrollToBottom();
-    reset({ message: "" });
+    dispatch({ type: IAction.SET_MESSAGE, payload: { ...state, message: "" } });
   };
 
-  return { register, handleSubmit, onSubmit };
+  return { ...state, handleSubmit, setEmoji, handleInput };
 };

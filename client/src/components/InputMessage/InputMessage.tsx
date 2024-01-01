@@ -1,10 +1,10 @@
 import { useInputMessage } from "./InputMessage.logic";
 import "./InputMessage.css";
-import InputButton from "../InputButton/InputButton";
-import { IInputButton } from "../../types/Input/IInputButton";
+import EmojiButton from "../InputButton/EmojiButton";
 
 const InputMessage = () => {
   const logic = useInputMessage();
+
   return (
     <div className="input-message-container">
       <div className="input-message-content">
@@ -12,14 +12,14 @@ const InputMessage = () => {
           className="input-message-inp"
           type="text"
           placeholder="Envoyer un message"
-          {...logic.register("message")}
+          value={logic.message}
+          onChange={logic.handleInput}
         />
         <div className="input-message-button-container">
-          <InputButton icon={IInputButton.IMAGE} disabled={true} />
-          <InputButton icon={IInputButton.EMOJI} disabled={false} />
+          <EmojiButton setEmoji={logic.setEmoji} />
         </div>
       </div>
-      <button onClick={logic.handleSubmit(logic.onSubmit)} data-form-validity={true} className="input-message-submit">
+      <button onClick={logic.handleSubmit} data-form-validity={true} className="input-message-submit">
         Envoyer
       </button>
     </div>
