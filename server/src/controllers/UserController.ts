@@ -18,7 +18,7 @@ export const registerController = async (
   req: Request<{}, any, IUser & { confirmPassword: string }>,
   res: Response<{ token: string; user: IUserDTO }>
 ): Promise<void> => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword, pictureId } = req.body;
   if (!name || !email || !password || !confirmPassword)
     throw new AppError(IErrorCode.EMPTY_INPUT, "Inputs are empty", IStatusCode.BAD_REQUEST);
   const nameIsAlreadyUsed = await User.findOne({ name });
@@ -28,11 +28,11 @@ export const registerController = async (
     throw new AppError(IErrorCode.CANNOT_CONFIRM_PASSWORD, "Passwords are not the same", IStatusCode.BAD_REQUEST);
   const encryptedPassword = await encryptPassword(password);
   if (!encryptedPassword) throw new AppError(IErrorCode.UNEXCPECTED_ERROR, "Unexpected Error", IStatusCode.BAD_REQUEST);
-  const user = await User.create({ name, email, password: encryptedPassword, pictureId: 1, online: true });
+  const user = await User.create({ name, email, password: encryptedPassword, pictureId: pictureId, online: true });
   if (!user) throw new AppError(IErrorCode.CANNOT_CREATE_USER, "Not able to create User", IStatusCode.BAD_REQUEST);
   const token = getAuthenticatedToken(user.name, user.email);
   if (!token) throw new AppError(IErrorCode.CANNOT_GET_JWT_TOKEN, "Cannot get User Token", IStatusCode.NOT_FOUND);
-  const userWithoutPassword = { name: user.name, email: user.email, pictureId: 1, online: true, _id: user.id }; // Modify the picture id by default
+  const userWithoutPassword = { name: user.name, email: user.email, pictureId: pictureId, online: true, _id: user.id }; // Modify the picture id by default
   res.status(IStatusCode.CREATED).json({ token, user: userWithoutPassword });
 };
 

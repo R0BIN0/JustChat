@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import InputError from "../../../components/InputError/InputError";
 import FormHeader from "../../../components/FormHeader/FormHeader";
 import FormSubmitButton from "../../../components/FormSubmitButton/FormSubmitButton";
+import Avatar from "../../../components/Avatar/Avatar";
 
 const Register = () => {
   const logic = useRegister();
@@ -29,9 +30,12 @@ const Register = () => {
     passwordError;
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ minHeight: "750px" }}>
       <div className={logic.mutation.isLoading ? "form-content form-content-isLoading" : "form-content"}>
         <FormHeader title={"S'enregistrer"} subtitle={"Profitez d'une expérience de chat simple et intuitive !"} />
+        <div className="form-avatar-container">
+          <Avatar handleAvatar={logic.handleAvatar} />
+        </div>
         <form className="form-form" onSubmit={logic.handleSubmitAsync}>
           <fieldset>
             <div>

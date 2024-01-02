@@ -1,0 +1,56 @@
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-carousel-container {
+  width: 195px;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.avatar-carousel-img-container {
+  display: flex;
+  transition: 0.3s ease;
+}
+
+.avatar-carousel-container img {
+  width: 50px;
+  margin: 0 0.5rem;
+}
+
+.current-selected-avatar {
+  background-color: rgba(209, 203, 50, 0.2);
+  border-radius: 7px;
+}
+
+.avatar-container button {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid var(--secondary-color);
+  margin: 0 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-container button svg path {
+  stroke: var(--secondary-color);
+}
+
+.avatar-container button:last-child svg {
+  transform: rotate(180deg);
+}
+
+.avatar-container button:hover {
+  border: 1px solid var(--CTA-color);
+  background-color: rgba(209, 203, 50, 0.2);
+}
+
+.avatar-container button:hover svg path {
+  stroke: var(--CTA-color);
+}

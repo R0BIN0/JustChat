@@ -20,7 +20,7 @@ const Login = () => {
   const unexcpectedError = error && error.code === IErrorCode.UNEXCPECTED_ERROR;
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ minHeight: "500px" }}>
       <div className={logic.mutation.isLoading ? "form-content form-content-isLoading" : "form-content"}>
         <FormHeader
           title={"Se connecter"}

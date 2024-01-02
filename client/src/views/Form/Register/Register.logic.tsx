@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useReducer, useEffect } from "react";
+import React, { useCallback, useReducer, useEffect, useRef } from "react";
 import { reducer, initialState, IAction, componentIsUnmounting, IState } from "./Register.reducer";
 import { useDispatch } from "react-redux";
 import { IAppDispatch } from "../../../redux/store";
@@ -18,6 +18,9 @@ export const useRegister = () => {
 
   // State
   const [state, dispatch] = useReducer(reducer, { ...initialState });
+
+  // Ref
+  const avatarRef = useRef<number>(2);
 
   useEffect(() => {
     window.addEventListener("keypress", submitWithKeypress);
@@ -38,6 +41,7 @@ export const useRegister = () => {
         email: state.email,
         password: state.password,
         confirmPassword: state.confirmPassword,
+        pictureId: avatarRef.current,
       }),
     {
       onSuccess: (res) => handleSuccess(res),
@@ -68,6 +72,10 @@ export const useRegister = () => {
     const payload: IState = { ...state, form: { ...state.form, emailIsValid: isValid } };
     dispatch({ type: IAction.EMAIL_VALIDATION, payload });
   };
+
+  const handleAvatar = useCallback((idx: number) => {
+    avatarRef.current = idx;
+  }, []);
 
   /**
    * This function is used to fill state with input data that user insert.
@@ -133,5 +141,5 @@ export const useRegister = () => {
     mutation.mutate();
   };
 
-  return { state, dispatch, handleInput, togglePassword, handleSubmitAsync, mutation };
+  return { state, dispatch, handleInput, togglePassword, handleSubmitAsync, mutation, handleAvatar };
 };
