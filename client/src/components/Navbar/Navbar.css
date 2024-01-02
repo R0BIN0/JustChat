@@ -1,0 +1,44 @@
+.nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  height: 95px;
+}
+
+.nav-left svg {
+  width: 100px;
+  height: 60px;
+}
+
+.nav-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-right ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-right ul li a {
+  color: rgb(206, 206, 206);
+  margin: 0 1rem;
+  font-size: 0.95rem;
+}
+
+.nav-right ul li:hover a {
+  color: rgb(255, 255, 255);
+}
+
+.nav-right svg {
+  width: 20px;
+  height: 20px;
+}

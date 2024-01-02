@@ -2,17 +2,17 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 10px;
+  width: 5px;
   border-radius: 30px;
   background-color: #252630;
   z-index: 100;
-  height: calc(100% - 10rem);
-  margin-top: 75px;
+  height: calc(100% - 10rem - 95px);
+  margin-top: 170px;
   margin-right: 1rem;
 }
 .scrollbar div {
   background-color: #30313b;
-  width: 10px;
+  width: 5px;
   height: 50px;
   border-radius: 30px;
   position: absolute;

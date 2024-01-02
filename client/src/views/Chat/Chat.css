@@ -1,7 +1,6 @@
 .chat-container {
   width: 100%;
-  height: 100vh;
-  max-height: 100vh;
+  max-height: calc(100vh - 95px);
 }
 
 .chat-user-list::-webkit-scrollbar {
@@ -11,11 +10,12 @@
 
 .chat-top-container {
   width: 100%;
+  margin-top: 95px;
 }
 
 .chat-content-container {
   width: 100%;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px - 95px);
   position: relative;
 }
 
