@@ -1,12 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { IState, componentIsUnmounting, reducer, initialState, IAction } from "./Dropdown.reducer";
-import { useSelector } from "react-redux";
-import { IRootState } from "../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { IAppDispatch, IRootState } from "../../redux/store";
+import { useNavigate } from "react-router-dom";
+import { setUser } from "../../redux/reducers/userReducer";
+import { setAuth } from "../../redux/reducers/authReducer";
 
 export const useDropdown = () => {
   // Services
   const user = useSelector((s: IRootState) => s.user);
+  const navigate = useNavigate();
+  const dispatchCtx = useDispatch<IAppDispatch>();
 
   // State
   const [state, dispatch] = useReducer(reducer, { ...initialState });
@@ -35,7 +40,25 @@ export const useDropdown = () => {
     dispatch({ type: IAction.TOGGLE_IS_ACTIVE, payload });
   };
 
-  const handleDisconnect = (): void => {};
+  const handleDisconnect = useCallback((): void => {
+    sessionStorage.clear();
+    dispatchCtx(
+      setUser({
+        name: "",
+        email: "",
+        pictureId: 1,
+        online: false,
+        _id: "",
+      })
+    );
+    dispatchCtx(
+      setAuth({
+        isAuthenticated: false,
+        token: "",
+      })
+    );
+    navigate("/");
+  }, []);
 
   const openEditDialog = (): void => {};
 
