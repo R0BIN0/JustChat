@@ -3,11 +3,13 @@ import authReducer from "./reducers/authReducer";
 import userReducer from "./reducers/userReducer";
 import socketReducer from "./reducers/socketReducer";
 import chatReducer from "./reducers/chatReducer";
+import dialogReducer from "./reducers/dialogReducer";
 
 const rootReducer = {
   auth: authReducer,
   user: userReducer,
   chat: chatReducer,
+  dialog: dialogReducer,
   socket: socketReducer,
 };
 

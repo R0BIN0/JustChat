@@ -6,6 +6,8 @@ import { IAppDispatch, IRootState } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../../redux/reducers/userReducer";
 import { setAuth } from "../../redux/reducers/authReducer";
+import { setDialog } from "../../redux/reducers/dialogReducer";
+import { IDialogs } from "../../types/Dialogs/IDialogs";
 
 export const useDropdown = () => {
   // Services
@@ -57,10 +59,13 @@ export const useDropdown = () => {
         token: "",
       })
     );
+    dispatchCtx(setDialog({ isOpen: undefined, data: undefined }));
     navigate("/");
   }, []);
 
-  const openEditDialog = (): void => {};
+  const openEditDialog = useCallback((): void => {
+    dispatchCtx(setDialog({ isOpen: IDialogs.MODIFY, data: undefined }));
+  }, []);
 
   return { ...state, toggleIsActive, openEditDialog, handleDisconnect, dropDownContainer, user };
 };

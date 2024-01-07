@@ -22,8 +22,7 @@ export const registerController = async (
   if (!name || !email || !password || !confirmPassword)
     throw new AppError(IErrorCode.EMPTY_INPUT, "Inputs are empty", IStatusCode.BAD_REQUEST);
   const nameIsAlreadyUsed = await User.findOne({ name });
-  if (nameIsAlreadyUsed)
-    throw new AppError(IErrorCode.NAME_ALREADY_USED, "This name is already used", IStatusCode.BAD_REQUEST);
+  if (nameIsAlreadyUsed) throw new AppError(IErrorCode.NAME_ALREADY_USED, "This name is already used", IStatusCode.BAD_REQUEST);
   if (!passwordIsConfirmed(password, confirmPassword))
     throw new AppError(IErrorCode.CANNOT_CONFIRM_PASSWORD, "Passwords are not the same", IStatusCode.BAD_REQUEST);
   const encryptedPassword = await encryptPassword(password);
@@ -66,6 +65,30 @@ export const loginController = async (
 };
 
 /**
+ * This function is used to log user
+ * @param {Request<{}, any, Pick<IUser, "name" | "email | pictureId">>} req - Request which contain user name, email and pictureId
+ * @param {Response<{ success: boolean }>} res - Response which contain the success of the request (to trigger react-hook-form success)
+ * @returns {void}
+ */
+export const updateUserController = async (
+  req: Request<{}, any, Pick<IUser, "_id" | "name" | "email" | "pictureId">>,
+  res: Response<{ success: boolean }>
+): Promise<void> => {
+  const { _id, name, email, pictureId } = req.body;
+  if (!email || !name) throw new AppError(IErrorCode.EMPTY_INPUT, "Inputs are empty", IStatusCode.BAD_REQUEST);
+  const nameIsAlreadyUsed = await User.findOne({ name });
+  if (nameIsAlreadyUsed && nameIsAlreadyUsed.id !== _id)
+    throw new AppError(IErrorCode.NAME_ALREADY_USED, "This name is already used", IStatusCode.BAD_REQUEST);
+  const emailIsAlreadyUsed = await User.findOne({ email });
+  if (emailIsAlreadyUsed && emailIsAlreadyUsed.id !== _id)
+    throw new AppError(IErrorCode.SAME_EMAIL, "This email is already used", IStatusCode.BAD_REQUEST);
+
+  const user = await User.findOneAndUpdate({ _id }, { name, email, pictureId });
+  if (!user) throw new AppError(IErrorCode.USER_NOT_FOUND, "No User found", IStatusCode.NOT_FOUND);
+  res.status(IStatusCode.OK).json({ success: true });
+};
+
+/**
  * This function is used to get all Users from the DB
  * @param {Request<{}, {}, {}, { userId: string; search: string; start: string; limit: string }>} req - all queries provided by client.
  * @param {Response<{ users: IUser[], total: number }>} res - Users found in the Database that corresponding with queries.
@@ -105,7 +128,8 @@ export const getUserByIdController = async (
   res.status(IStatusCode.OK).json({ user });
 };
 
-export const login = tryCatch(loginController);
 export const register = tryCatch(registerController);
+export const login = tryCatch(loginController);
+export const updateUser = tryCatch(updateUserController);
 export const getAllUsers = tryCatch(getAllUsersController);
 export const getUserById = tryCatch(getUserByIdController);

@@ -25,6 +25,15 @@ export const userIsDisconnected = async (user: IUser) => {
   sendToClient(event, "ALL");
 };
 
+export const userUpdate = (user: IUser) => {
+  const { _id } = user;
+  if (!_id) return;
+  const filterCaller = clients.filter((item) => item.userId !== _id);
+  const userIds = filterCaller.map((item) => item.userId);
+  const event = { type: ISocketEvent.USER_UDPATE, data: user };
+  sendToClient(event, userIds);
+};
+
 export const sendMessage = async (message: IMessage) => {
   const chat = await Chat.findOne({ _id: message.conversationId });
   if (!chat) return;

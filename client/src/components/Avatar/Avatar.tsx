@@ -4,7 +4,7 @@ import { AVATAR_LENGTH } from "../../const/const";
 import Chevron from "../../icons/Chevron/Chevron";
 import { memo } from "react";
 
-const Avatar = memo((props: { handleAvatar: (idx: number) => void }) => {
+const Avatar = memo((props: { handleAvatar: (idx: number) => void; defaultAvatar?: number }) => {
   const logic = useAvatar(props);
 
   return (
@@ -15,7 +15,9 @@ const Avatar = memo((props: { handleAvatar: (idx: number) => void }) => {
       <div className="avatar-carousel-container">
         <div
           className="avatar-carousel-img-container"
-          style={{ transform: `translateX(calc(-66px * ${logic.currentIdx}))` }}
+          style={{
+            transform: `translateX(calc(-66px * ${logic.currentIdx}))`,
+          }}
         >
           {Array.from({ length: AVATAR_LENGTH }).map((_, i) => (
             <img

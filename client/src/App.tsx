@@ -7,6 +7,7 @@ import Register from "./views/Form/Register/Register";
 import useWebSocket from "./hooks/useWebSocket";
 import Chat from "./views/Chat/Chat";
 import Navbar from "./components/Navbar/Navbar";
+import Dialogs from "./components/Dialogs/Dialogs";
 
 function App() {
   useWebSocket("ws://localhost:8000");
@@ -15,6 +16,7 @@ function App() {
     <div className="App">
       <Router>
         <Navbar />
+        <Dialogs />
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route element={<Home />} path="/home" />

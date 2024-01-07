@@ -1,0 +1,24 @@
+.modifyDialog-content {
+  padding: 2rem 1.5rem;
+}
+
+.modifyDialog-input-error {
+  color: var(--error-color);
+  font-size: 0.75em;
+  margin-top: 0.25rem;
+  display: inline-block;
+}
+
+.modifyDialog-delete-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modifyDialog-delete {
+  margin-top: 3rem;
+  font-size: 0.85em;
+  color: var(--error-color);
+  text-decoration: underline;
+  cursor: pointer;
+}

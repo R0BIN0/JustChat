@@ -90,7 +90,7 @@ export const useUserList = (props: IUserList) => {
    * @param {unknown} event - Event type sended from server side
    * @returns {void}
    */
-  const onEvent = (event: unknown) => {
+  const onEvent = (event: unknown): void => {
     const { type, data: dataEvent } = parseSocketEvent(event);
     switch (type) {
       case ISocketEvent.USER_IS_CONNECTED:
@@ -98,6 +98,9 @@ export const useUserList = (props: IUserList) => {
         break;
       case ISocketEvent.USER_IS_DISCONNECTED:
         onUserDisconnected(dataEvent as IUser);
+        break;
+      case ISocketEvent.USER_UDPATE:
+        updateUser(dataEvent as IUser, { isConnected: true });
         break;
       default:
         break;
@@ -147,7 +150,9 @@ export const useUserList = (props: IUserList) => {
       if (userIdx === -1) return { ...oldData };
 
       const updatedPage = oldData.pages[userIdx].users.map((u) =>
-        u._id === updatedUser._id ? { ...u, online: isConnected } : u
+        u._id === updatedUser._id
+          ? { ...u, online: isConnected, name: updatedUser.name, email: updatedUser.email, pictureId: updatedUser.pictureId }
+          : u
       );
       oldData.pages[userIdx] = { users: updatedPage, total: oldData.pages[userIdx].total };
       return { ...oldData };

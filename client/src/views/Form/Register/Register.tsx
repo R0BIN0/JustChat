@@ -21,8 +21,7 @@ const Register = () => {
     logic.state.password === logic.state.confirmPassword;
 
   const passwordError = error && error.code === IErrorCode.CANNOT_CONFIRM_PASSWORD;
-  const emailError =
-    (error && error.code === IErrorCode.SAME_EMAIL) || (error && error.code === IErrorCode.WRONG_MAIL_FORMAT);
+  const emailError = (error && error.code === IErrorCode.SAME_EMAIL) || (error && error.code === IErrorCode.WRONG_MAIL_FORMAT);
   const nameError = error && error.code === IErrorCode.NAME_ALREADY_USED;
   const unexcpectedError =
     (error && error.code === IErrorCode.UNEXCPECTED_ERROR) ||
