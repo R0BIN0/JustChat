@@ -1,5 +1,5 @@
 import { useMutation } from "react-query";
-import { updateUser } from "../../apis/actions/UserAction";
+import { deleteUser, updateUser } from "../../apis/actions/UserAction";
 import { IError } from "../../apis/IError";
 
 export const useUserCache = () => {
@@ -7,5 +7,7 @@ export const useUserCache = () => {
     onError: (err: IError) => {},
   });
 
-  return { updateUserMutation };
+  const deleteUserMutation = useMutation(deleteUser);
+
+  return { updateUserMutation, deleteUserMutation };
 };

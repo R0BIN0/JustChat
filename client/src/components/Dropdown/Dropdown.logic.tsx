@@ -8,10 +8,12 @@ import { setUser } from "../../redux/reducers/userReducer";
 import { setAuth } from "../../redux/reducers/authReducer";
 import { setDialog } from "../../redux/reducers/dialogReducer";
 import { IDialogs } from "../../types/Dialogs/IDialogs";
+import { ISocketEvent } from "../../apis/ISocketEvent";
 
 export const useDropdown = () => {
   // Services
   const user = useSelector((s: IRootState) => s.user);
+  const { emitEvent } = useSelector((s: IRootState) => s.socket);
   const navigate = useNavigate();
   const dispatchCtx = useDispatch<IAppDispatch>();
 
@@ -43,6 +45,7 @@ export const useDropdown = () => {
   };
 
   const handleDisconnect = useCallback((): void => {
+    emitEvent(ISocketEvent.USER_IS_DISCONNECTED, user);
     sessionStorage.clear();
     dispatchCtx(
       setUser({
@@ -61,7 +64,7 @@ export const useDropdown = () => {
     );
     dispatchCtx(setDialog({ isOpen: undefined, data: undefined }));
     navigate("/");
-  }, []);
+  }, [user]);
 
   const openEditDialog = useCallback((): void => {
     dispatchCtx(setDialog({ isOpen: IDialogs.MODIFY, data: undefined }));

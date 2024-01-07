@@ -66,7 +66,7 @@ export const loginController = async (
 
 /**
  * This function is used to log user
- * @param {Request<{}, any, Pick<IUser, "name" | "email | pictureId">>} req - Request which contain user name, email and pictureId
+ * @param {Request<{}, any, Pick<IUser, "_id" | "name" | "email | pictureId">>} req - Request which contain user _id, name, email and pictureId
  * @param {Response<{ success: boolean }>} res - Response which contain the success of the request (to trigger react-hook-form success)
  * @returns {void}
  */
@@ -85,6 +85,21 @@ export const updateUserController = async (
 
   const user = await User.findOneAndUpdate({ _id }, { name, email, pictureId });
   if (!user) throw new AppError(IErrorCode.USER_NOT_FOUND, "No User found", IStatusCode.NOT_FOUND);
+  res.status(IStatusCode.OK).json({ success: true });
+};
+
+/**
+ * This function is used to log user
+ * @param {Request<{}, any, Pick<IUser, "_id">>} req - Request which contain user _id
+ * @param {Response<{ success: boolean }>} res - Response which contain the success of the request (to trigger react-hook-form success)
+ * @returns {void}
+ */
+export const deleteUserController = async (
+  req: Request<{}, any, Pick<IUser, "_id">>,
+  res: Response<{ success: boolean }>
+): Promise<void> => {
+  const { _id } = req.body;
+  await User.findOneAndDelete({ _id });
   res.status(IStatusCode.OK).json({ success: true });
 };
 
@@ -131,5 +146,6 @@ export const getUserByIdController = async (
 export const register = tryCatch(registerController);
 export const login = tryCatch(loginController);
 export const updateUser = tryCatch(updateUserController);
+export const deleteUser = tryCatch(deleteUserController);
 export const getAllUsers = tryCatch(getAllUsersController);
 export const getUserById = tryCatch(getUserByIdController);

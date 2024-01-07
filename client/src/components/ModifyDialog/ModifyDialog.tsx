@@ -63,7 +63,9 @@ const ModifyDialog = () => {
           </div>
         </form>
         <div className="modifyDialog-delete-container">
-          <button className="modifyDialog-delete">Supprimer mon compte</button>
+          <button onClick={logic.handleDeleteDialog} className="modifyDialog-delete">
+            Supprimer mon compte
+          </button>
         </div>
       </div>
     </div>

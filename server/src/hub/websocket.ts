@@ -3,7 +3,7 @@ import { server } from "../app.js";
 import { parseBuffer } from "../utils/parseBuffer.js";
 import { ISocketEvent } from "../types/ISocketEvent.js";
 import { IUser } from "../types/IUser.js";
-import { sendMessage, userIsConnected, userIsDisconnected, userUpdate } from "./hubEvent.js";
+import { sendMessage, userDelete, userIsConnected, userIsDisconnected, userUpdate } from "./hubEvent.js";
 import { IMessage } from "../types/IMessage.js";
 
 export const initializeWebSocket = () => {
@@ -27,6 +27,9 @@ const onEvent = (ws: WebSocket, type: ISocketEvent, evt: unknown) => {
       break;
     case ISocketEvent.USER_UDPATE:
       userUpdate(evt as IUser);
+      break;
+    case ISocketEvent.USER_DELETE:
+      userDelete(evt as IUser);
       break;
     case ISocketEvent.SEND_MESSAGE:
       sendMessage(evt as IMessage);

@@ -7,6 +7,7 @@ import { setDialog } from "../../redux/reducers/dialogReducer";
 import { setUser } from "../../redux/reducers/userReducer";
 import { ISocketEvent } from "../../apis/ISocketEvent";
 import { IError } from "../../apis/IError";
+import { IDialogs } from "../../types/Dialogs/IDialogs";
 
 export const useModifyDialog = () => {
   // Services
@@ -90,5 +91,9 @@ export const useModifyDialog = () => {
     dispatch({ type: IAction.UPDATE_ERROR_MESSAGE, payload });
   };
 
-  return { ...state, handleAvatar, avatarRef, handleSubmitAsync, handleInput, updateUserMutation };
+  const handleDeleteDialog = useCallback((): void => {
+    dispatchCtx(setDialog({ isOpen: IDialogs.DELETE, data: undefined }));
+  }, []);
+
+  return { ...state, handleAvatar, avatarRef, handleSubmitAsync, handleInput, updateUserMutation, handleDeleteDialog };
 };

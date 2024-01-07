@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { IUserList } from "../../types/Users/IUserList";
-import { useUserCache } from "../../hooks/useQueryCache/useUsersCache";
 import { ISocketEvent } from "../../apis/ISocketEvent";
 import { parseSocketEvent } from "../../utils/parseSocketEvent";
 import { IUser } from "../../apis/IUser";
@@ -11,6 +10,7 @@ import { QUERY_KEY } from "../../hooks/useQueryCache/queryKey";
 import { getIndexFromNumber } from "../../utils/getIndexFromNumber";
 import { FETCH_USERS_LIMIT } from "../../const/const";
 import { IQueryUser } from "../../types/Query/IQueryUsers";
+import { useUsersCache } from "../../hooks/useQueryCache/useUsersCache";
 
 export const useUserList = (props: IUserList) => {
   const { webSocket, emitEvent } = useSelector((s: IRootState) => s.socket);
@@ -22,7 +22,7 @@ export const useUserList = (props: IUserList) => {
   const {
     queryUsers: { hasNextPage, data, fetchNextPage, isFetching },
     removeUnusedQueries,
-  } = useUserCache(searchTerm);
+  } = useUsersCache(searchTerm);
 
   const users = data?.pages.map((p) => p.users.map((u) => u)).flat() ?? [];
 
@@ -102,9 +102,28 @@ export const useUserList = (props: IUserList) => {
       case ISocketEvent.USER_UDPATE:
         updateUser(dataEvent as IUser, { isConnected: true });
         break;
+      case ISocketEvent.USER_DELETE:
+        onUserDelete(dataEvent as IUser);
+        break;
       default:
         break;
     }
+  };
+
+  /**
+   * This function is use to handle delete account of a user
+   * @param {IUser} updatedUser - Event type sended from server side
+   * @returns {void}
+   */
+  const onUserDelete = (updatedUser: IUser) => {
+    queryClient.setQueriesData([QUERY_KEY.USERS, user._id], (oldData: IQueryUser | undefined) => {
+      if (!oldData) return { pages: [], pageParams: [] };
+      const userIdx = getUserIndexInQuery(updatedUser, oldData);
+      if (userIdx === -1) return { ...oldData };
+      const updatedPage = oldData.pages[userIdx].users.filter((u) => u._id !== updatedUser._id);
+      oldData.pages[userIdx] = { users: updatedPage, total: oldData.pages[userIdx].total };
+      return { ...oldData };
+    });
   };
 
   /**

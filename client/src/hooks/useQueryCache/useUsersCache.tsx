@@ -8,22 +8,18 @@ import { getUsers } from "../../apis/actions/UserAction.ts";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../redux/store.tsx";
 
-export const useUserCache = (searchTerm: string) => {
+export const useUsersCache = (searchTerm: string) => {
   const userId = useSelector((s: IRootState) => s.user._id);
 
-  const queryUsers = useInfiniteQuery<{ users: IUser[]; total: number }>(
-    [QUERY_KEY.USERS, userId, searchTerm],
-    getUsers,
-    {
-      ...queryOptions,
-      staleTime: Infinity,
-      getNextPageParam: (lastPage, allPages) => {
-        const morePagesExist = allPages.length * FETCH_USERS_LIMIT < lastPage.total;
-        if (!morePagesExist) return;
-        return allPages.length * FETCH_USERS_LIMIT;
-      },
-    }
-  );
+  const queryUsers = useInfiniteQuery<{ users: IUser[]; total: number }>([QUERY_KEY.USERS, userId, searchTerm], getUsers, {
+    ...queryOptions,
+    staleTime: Infinity,
+    getNextPageParam: (lastPage, allPages) => {
+      const morePagesExist = allPages.length * FETCH_USERS_LIMIT < lastPage.total;
+      if (!morePagesExist) return;
+      return allPages.length * FETCH_USERS_LIMIT;
+    },
+  });
 
   // Remove all queries with searchTerm to avoid overloading cache
   const removeUnusedQueries = () => {
