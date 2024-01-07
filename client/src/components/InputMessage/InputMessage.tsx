@@ -1,6 +1,7 @@
 import { useInputMessage } from "./InputMessage.logic";
 import "./InputMessage.css";
 import EmojiButton from "../InputButton/EmojiButton";
+import SendIcon from "../../icons/SendIcon/SendIcon";
 
 const InputMessage = () => {
   const logic = useInputMessage();
@@ -19,8 +20,19 @@ const InputMessage = () => {
           <EmojiButton setEmoji={logic.setEmoji} />
         </div>
       </div>
-      <button onClick={logic.handleSubmit} data-form-validity={true} className="input-message-submit">
+      <button
+        onClick={logic.handleSubmit}
+        data-form-validity={true}
+        className="input-message-submit input-message-submit-desktop"
+      >
         Envoyer
+      </button>
+      <button
+        onClick={logic.handleSubmit}
+        data-form-validity={true}
+        className="input-message-submit input-message-submit-mobile"
+      >
+        <SendIcon />
       </button>
     </div>
   );

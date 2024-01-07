@@ -71,3 +71,9 @@
 .epr-preview {
   display: none !important;
 }
+
+@media screen and (max-width: 768px) {
+  .emoji-button-picker-container {
+    transform: translateX(67.5px);
+  }
+}
