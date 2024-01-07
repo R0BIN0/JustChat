@@ -6,11 +6,17 @@
   align-items: center;
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
+  transition: 0.2s ease;
 }
 
 .userCard-container[data-online~="false"] {
   opacity: 0.5;
 }
+
+.userCard-container:hover {
+  background: #21222b;
+}
+
 /* UserCard left */
 
 .userCard-left {
@@ -62,7 +68,7 @@
 }
 
 .userCard-left-text-container span {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #b5b5b5;
 }
 

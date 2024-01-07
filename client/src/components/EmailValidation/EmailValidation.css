@@ -20,11 +20,15 @@
 }
 
 .email-validation span svg {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
+}
+
+.email-validation span svg path {
+  fill: #6cc0ac;
 }
 
 .email-validation span[data-email-validation~="true"] {
-  border: 1px solid #6cc0ac;
-  background: #6affb8;
+  border: 2px solid #6cc0ac;
+  background: #6affb727;
 }

@@ -5,7 +5,8 @@
   --subtitle-color: #f2f2f2;
   --text-color: #b5b5b5;
   --CTA-color: #d1cb32;
-  --error-color: #d13258;
+  --CTA-color-hover: #f8f244;
+  --error-color: #ff7171;
   --error-color-o10: rgba(209, 50, 88, 0.1);
 }
 

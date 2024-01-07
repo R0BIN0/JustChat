@@ -19,6 +19,10 @@
   fill: var(--secondary-color);
 }
 
+.emoji-button-container:hover path {
+  fill: #62647a;
+}
+
 /* Relative to Emoji Picker */
 
 .epr-main {
@@ -69,6 +73,10 @@
 }
 
 .epr-preview {
+  display: none !important;
+}
+
+.epr-btn-clear-search {
   display: none !important;
 }
 

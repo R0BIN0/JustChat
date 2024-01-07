@@ -20,7 +20,7 @@
   border: none;
   border-radius: 4px;
   color: white;
-  background: #292a33;
+  background: #1b1c24;
   height: 50px;
   padding-right: 3rem;
 }
@@ -54,6 +54,10 @@
   position: relative;
   margin-left: 1rem;
   max-height: 50px;
+}
+
+.input-message-submit:hover {
+  background-color: var(--CTA-color-hover);
 }
 
 .input-message-submit-mobile {
