@@ -4,7 +4,7 @@ import { IFormHeader } from "../../types/Form/IFormHeader";
 
 const FormHeader: FC<IFormHeader> = memo((props) => {
   return (
-    <div className="formHeader-title-container">
+    <div data-testid="formHeader-container" className="formHeader-title-container">
       <h1>{props.title}</h1>
       <h2>{props.subtitle}</h2>
     </div>

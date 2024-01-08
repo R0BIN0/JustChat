@@ -9,7 +9,7 @@ const Avatar = memo((props: { handleAvatar: (idx: number) => void; defaultAvatar
 
   return (
     <div className="avatar-container">
-      <button onClick={logic.handleGoBack}>
+      <button onClick={logic.handleGoBack} data-testid="avatar-btn-prev">
         <Chevron />
       </button>
       <div className="avatar-carousel-container">
@@ -22,6 +22,7 @@ const Avatar = memo((props: { handleAvatar: (idx: number) => void; defaultAvatar
           {Array.from({ length: AVATAR_LENGTH }).map((_, i) => (
             <img
               key={i}
+              data-testid={`avatar-picture-${i + 1}`}
               className={logic.currentIdx + 1 === i ? "current-selected-avatar" : ""}
               src={`/assets/avatar/avatar_${i + 1}.png`}
               alt="User Avatar"
@@ -29,7 +30,7 @@ const Avatar = memo((props: { handleAvatar: (idx: number) => void; defaultAvatar
           ))}
         </div>
       </div>
-      <button onClick={logic.handleGoNext}>
+      <button onClick={logic.handleGoNext} data-testid="avatar-btn-next">
         <Chevron />
       </button>
     </div>

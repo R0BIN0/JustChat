@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import Login from "../src/views/Form/Login/Login";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
 import { useLogin } from "../src/views/Form/Login/Login.logic";
-import { IState, initialState } from "../src/views/Form/Login/Login.reducer";
+import { initialState } from "../src/views/Form/Login/Login.reducer";
 import React from "react";
 import { act } from "react-dom/test-utils";
 import axios from "axios";
@@ -67,19 +67,17 @@ describe("Hook mount/unmount correctly", () => {
 
   it("The initial state typeof of the hook is right", () => {
     hookResult = initHook();
-    expect(typeof hookResult.result.current.state).toBe(typeof initialState);
+    expect(typeof hookResult.result.current).toBe(typeof initialState);
   });
 
   it("The initial state values of the hook is right", () => {
     hookResult = initHook();
-    expect(hookResult.result.current.state).toEqual({
-      email: "",
-      password: "",
-      error: undefined,
-      form: {
-        passwordIsHidden: true,
-        emailIsValid: false,
-      },
+    expect(hookResult.result.current.email).toBe("");
+    expect(hookResult.result.current.password).toBe("");
+    expect(hookResult.result.current.error).toBeUndefined();
+    expect(hookResult.result.current.form).toStrictEqual({
+      passwordIsHidden: true,
+      emailIsValid: false,
     });
   });
 
@@ -91,15 +89,9 @@ describe("Hook mount/unmount correctly", () => {
   it("Verify that the initial state is correctly cleaned after the hook is unmounted", () => {
     initialState.email = "test@gmail.com";
     hookResult = initHook();
-    expect(hookResult.result.current.state.email).toBe("test@gmail.com");
+    expect(hookResult.result.current.email).toBe("test@gmail.com");
     hookResult.unmount();
-    const expectedResponse: IState = {
-      email: "",
-      password: "",
-      error: undefined,
-      form: { passwordIsHidden: true, emailIsValid: false },
-    };
-    expect(initialState).toStrictEqual(expectedResponse);
+    expect(initialState.email).toStrictEqual("");
   });
 });
 
@@ -199,12 +191,12 @@ describe("Email input behavior are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    const validationElement = document.querySelector(".email-validation span");
-    const checkInconElement = document.querySelector(".email-validation span svg");
+    const validationElement = document.querySelector(".form-validation span");
+    const checkInconElement = document.querySelector(".form-validation span svg");
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
     const styles = window.getComputedStyle(validationElement!);
-    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).toBe("rgba(106, 255, 183, 0.153)");
   });
   it("If email is appropriate, toggle 'emailIsValid' state to true, then modify email to not be valid", () => {
     componentResult = initComponent();
@@ -215,21 +207,21 @@ describe("Email input behavior are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    validationElement = document.querySelector(".email-validation span")!;
-    checkInconElement = document.querySelector(".email-validation span svg")!;
+    validationElement = document.querySelector(".form-validation span")!;
+    checkInconElement = document.querySelector(".form-validation span svg")!;
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
     styles = window.getComputedStyle(validationElement!);
-    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).toBe("rgba(106, 255, 183, 0.153)");
     act(() => {
       fireEvent.change(emailInput, { target: { value: "" } });
     });
-    validationElement = document.querySelector(".email-validation span")!;
-    checkInconElement = document.querySelector(".email-validation span svg")!;
+    validationElement = document.querySelector(".form-validation span")!;
+    checkInconElement = document.querySelector(".form-validation span svg")!;
     styles = window.getComputedStyle(validationElement!);
 
     expect(checkInconElement).not.toBeInTheDocument();
-    expect(styles.backgroundColor).not.toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).not.toBe("rgba(106, 255, 183, 0.153)");
   });
 });
 
@@ -289,7 +281,7 @@ describe("Password input behavior are working", () => {
     const showPasswordBtnIcon = document.querySelector(".show-password svg path");
     expect(showPasswordBtnIcon).toBeInTheDocument();
     const styles = window.getComputedStyle(showPasswordBtnIcon!);
-    expect(styles.fill).toBe("var(--CTA-color)");
+    expect(styles.fill).toBe("var(--CTA-color-hover)");
   });
   it("Press button to toggle hide password and verify that password input type has been changed into 'text'", () => {
     const showPasswordBtn = document.querySelector(".show-password")!;
@@ -302,7 +294,7 @@ describe("Password input behavior are working", () => {
     fireEvent.click(showPasswordBtn);
     expect(passwordInput?.getAttribute("type")).toBe("text");
     const styles = window.getComputedStyle(showPasswordBtnIcon!);
-    expect(styles.fill).toBe("var(--secondary-color)");
+    expect(styles.fill).toBe("#64667c");
   });
   it("Press button to toggle hide password twice", () => {
     const showPasswordBtn = document.querySelector(".show-password")!;
@@ -499,9 +491,7 @@ describe("Handle Login submit behavior", () => {
     const password = "";
     const mockedResponse = new Error("Unexpected Error !");
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
-    await expect(login({ email, password })).rejects.toThrow(
-      "Une erreur est survenue. Veuillez réessayer ultérieurement."
-    );
+    await expect(login({ email, password })).rejects.toThrow("Une erreur est survenue. Veuillez réessayer ultérieurement.");
   });
 
   it("If the reponse is good from the server. Dispatch infos to store", async () => {

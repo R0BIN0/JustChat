@@ -1,7 +1,6 @@
 import { useRegister } from "./Register.logic";
 import "../Form.css";
 import Input from "../../../components/Input/Input";
-import EmailValidation from "../../../components/EmailValidation/EmailValidation";
 import HidePassword from "../../../components/HidePassword/HidePassword";
 import { Link } from "react-router-dom";
 import InputError from "../../../components/InputError/InputError";
@@ -9,11 +8,12 @@ import FormHeader from "../../../components/FormHeader/FormHeader";
 import FormSubmitButton from "../../../components/FormSubmitButton/FormSubmitButton";
 import Avatar from "../../../components/Avatar/Avatar";
 import { getError } from "../../../utils/getError";
+import FormValidation from "../../../components/EmailValidation/EmailValidation";
 
 const Register = () => {
   const logic = useRegister();
   const formIsValid = logic.password && logic.form.emailIsValid && logic.name && logic.password === logic.confirmPassword;
-  const { nameError, emailError, passwordError, unexcpectedError } = getError(logic.error?.code);
+  const { nameError, emailError, passwordError, confirmPasswordError, unexcpectedError } = getError(logic.error?.code);
 
   return (
     <div className="form-container" style={{ minHeight: "750px" }}>
@@ -33,7 +33,7 @@ const Register = () => {
                 onChange={logic.handleInput}
                 error={nameError}
               />
-              <EmailValidation isValid={!!logic.name} />
+              <FormValidation isValid={!!logic.name} />
               <InputError show={nameError} error={logic.error} />
             </div>
             <div>
@@ -45,7 +45,7 @@ const Register = () => {
                 onChange={logic.handleInput}
                 error={emailError}
               />
-              <EmailValidation isValid={logic.form.emailIsValid} />
+              <FormValidation isValid={logic.form.emailIsValid} />
               <InputError show={emailError} error={logic.error} />
             </div>
             <div>
@@ -66,7 +66,7 @@ const Register = () => {
                 placeholder="Confirmer le mot de passe"
                 value={logic.confirmPassword}
                 onChange={logic.handleInput}
-                error={passwordError}
+                error={confirmPasswordError}
               />
             </div>
           </fieldset>
@@ -87,6 +87,7 @@ const Register = () => {
         <InputError show={unexcpectedError} error={logic.error} />
         <div className="form-error-phone">
           <InputError show={nameError} error={logic.error} />
+          <InputError show={passwordError} error={logic.error} />
           <InputError show={emailError} error={logic.error} />
         </div>
       </div>

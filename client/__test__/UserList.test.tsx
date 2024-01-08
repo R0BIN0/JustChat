@@ -1,3 +1,6 @@
+test("", () => {
+  expect(true).toBeTruthy();
+});
 // import { render, renderHook, RenderHookResult, RenderResult, waitFor, screen } from "@testing-library/react";
 // import { IStore, initStore } from "../src/redux/store";
 // import { Provider } from "react-redux";

@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { reducer, initialState, IAction } from "./Avatar.reducer";
+import { reducer, initialState, IAction, componentIsUnmounting } from "./Avatar.reducer";
 import { AVATAR_LENGTH } from "../../const/const";
 
 export const useAvatar = (props: { handleAvatar: (idx: number) => void; defaultAvatar?: number }) => {
@@ -9,6 +9,9 @@ export const useAvatar = (props: { handleAvatar: (idx: number) => void; defaultA
   useEffect(() => {
     const currentIdx = props.defaultAvatar ? props.defaultAvatar - 2 : 0;
     dispatch({ type: IAction.SET_CURRENT_INDEX, payload: { ...state, currentIdx } });
+    return () => {
+      componentIsUnmounting();
+    };
   }, []);
 
   /**

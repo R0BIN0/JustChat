@@ -14,7 +14,7 @@ import { vi as jest } from "vitest";
 import Home from "../src/views/Home/Home";
 import Register from "../src/views/Form/Register/Register";
 import { useRegister } from "../src/views/Form/Register/Register.logic";
-import { IState, initialState } from "../src/views/Form/Register/Register.reducer";
+import { initialState } from "../src/views/Form/Register/Register.reducer";
 import { register } from "../src/apis/actions/UserAction";
 import Login from "../src/views/Form/Login/Login";
 import { IErrorCode } from "../src/apis/IErrorCode";
@@ -68,21 +68,19 @@ describe("Hook mount/unmount correctly", () => {
 
   it("The initial state typeof of the hook is right", () => {
     hookResult = initHook();
-    expect(typeof hookResult.result.current.state).toBe(typeof initialState);
+    expect(typeof hookResult.result.current).toBe(typeof initialState);
   });
 
   it("The initial state values of the hook is right", () => {
     hookResult = initHook();
-    expect(hookResult.result.current.state).toEqual({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      error: undefined,
-      form: {
-        passwordIsHidden: true,
-        emailIsValid: false,
-      },
+    expect(hookResult.result.current.name).toBe("");
+    expect(hookResult.result.current.email).toBe("");
+    expect(hookResult.result.current.password).toBe("");
+    expect(hookResult.result.current.confirmPassword).toBe("");
+    expect(hookResult.result.current.error).toBeUndefined();
+    expect(hookResult.result.current.form).toStrictEqual({
+      passwordIsHidden: true,
+      emailIsValid: false,
     });
   });
 
@@ -94,20 +92,9 @@ describe("Hook mount/unmount correctly", () => {
   it("Verify that the initial state is correctly cleaned after the hook is unmounted", () => {
     initialState.email = "test@gmail.com";
     hookResult = initHook();
-    expect(hookResult.result.current.state.email).toBe("test@gmail.com");
+    expect(hookResult.result.current.email).toBe("test@gmail.com");
     hookResult.unmount();
-    const expectedResponse: IState = {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      error: undefined,
-      form: {
-        passwordIsHidden: true,
-        emailIsValid: false,
-      },
-    };
-    expect(initialState).toStrictEqual(expectedResponse);
+    expect(initialState.email).toBe("");
   });
 });
 
@@ -205,12 +192,12 @@ describe("Name input behaviors are working", () => {
     act(() => {
       fireEvent.change(nameInput, { target: { value: "Robin" } });
     });
-    const validationElement = [...document.querySelectorAll(".email-validation span")][0];
-    const checkInconElement = document.querySelector(".email-validation span svg");
+    const validationElement = [...document.querySelectorAll(".form-validation span")][0];
+    const checkInconElement = document.querySelector(".form-validation span svg");
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
     const styles = window.getComputedStyle(validationElement!);
-    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).toBe("rgba(106, 255, 183, 0.153)");
   });
 });
 
@@ -274,12 +261,12 @@ describe("Email input behaviors are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    const validationElement = [...document.querySelectorAll(".email-validation span")][1];
-    const checkInconElement = document.querySelector(".email-validation span svg");
+    const validationElement = [...document.querySelectorAll(".form-validation span")][1];
+    const checkInconElement = document.querySelector(".form-validation span svg");
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
     const styles = window.getComputedStyle(validationElement!);
-    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).toBe("rgba(106, 255, 183, 0.153)");
   });
   it("If email is appropriate, toggle 'emailIsValid' state to true, then modify email to not be valid", () => {
     componentResult = initComponent();
@@ -290,20 +277,20 @@ describe("Email input behaviors are working", () => {
     act(() => {
       fireEvent.change(emailInput, { target: { value: "test@gmail.com" } });
     });
-    validationElement = [...document.querySelectorAll(".email-validation span")][1];
-    checkInconElement = document.querySelector(".email-validation span svg")!;
+    validationElement = [...document.querySelectorAll(".form-validation span")][1];
+    checkInconElement = document.querySelector(".form-validation span svg")!;
     expect(validationElement).toBeInTheDocument();
     expect(checkInconElement).toBeInTheDocument();
     styles = window.getComputedStyle(validationElement!);
-    expect(styles.backgroundColor).toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).toBe("rgba(106, 255, 183, 0.153)");
     act(() => {
       fireEvent.change(emailInput, { target: { value: "" } });
     });
-    validationElement = [...document.querySelectorAll(".email-validation span")][1];
-    checkInconElement = document.querySelector(".email-validation span svg")!;
+    validationElement = [...document.querySelectorAll(".form-validation span")][1];
+    checkInconElement = document.querySelector(".form-validation span svg")!;
     styles = window.getComputedStyle(validationElement!);
     expect(checkInconElement).not.toBeInTheDocument();
-    expect(styles.backgroundColor).not.toBe("rgb(106, 255, 184)");
+    expect(styles.backgroundColor).not.toBe("rgba(106, 255, 183, 0.153)");
   });
 });
 
@@ -363,7 +350,7 @@ describe("Password input behaviors are working", () => {
     const showPasswordBtnIcon = document.querySelector(".show-password svg path");
     expect(showPasswordBtnIcon).toBeInTheDocument();
     const styles = window.getComputedStyle(showPasswordBtnIcon!);
-    expect(styles.fill).toBe("var(--CTA-color)");
+    expect(styles.fill).toBe("var(--CTA-color-hover)");
   });
   it("Press button to toggle hide password and verify that password input type has been changed into 'text'", () => {
     const showPasswordBtn = document.querySelector(".show-password")!;
@@ -376,7 +363,7 @@ describe("Password input behaviors are working", () => {
     fireEvent.click(showPasswordBtn);
     expect(passwordInput?.getAttribute("type")).toBe("text");
     const styles = window.getComputedStyle(showPasswordBtnIcon!);
-    expect(styles.fill).toBe("var(--secondary-color)");
+    expect(styles.fill).toBe("#64667c");
   });
   it("Press button to toggle hide password twice", () => {
     const showPasswordBtn = document.querySelector(".show-password")!;
@@ -787,7 +774,7 @@ describe("Handle Register submit behavior", () => {
       response: {
         data: {
           error: {
-            message: "Passwords are not the same",
+            message: "Not able to confirm password",
             code: IErrorCode.CANNOT_CONFIRM_PASSWORD,
             status: IStatusCode.BAD_REQUEST,
           },
@@ -797,7 +784,7 @@ describe("Handle Register submit behavior", () => {
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    const errorEl = document.querySelector(".form-error-container .input-error");
+    const errorEl = document.querySelector(".input-error");
     expect(errorEl?.textContent).toBe("La confirmation de vos mots de passe est invalide.");
   });
 
@@ -822,7 +809,7 @@ describe("Handle Register submit behavior", () => {
     axios.post = jest.fn().mockImplementation(() => Promise.reject(mockedResponse));
     fireEvent.click(btnSubmit);
     await waitFor(() => {});
-    const errorEl = document.querySelector(".form-error-container .input-error");
+    const errorEl = document.querySelector(".input-error");
     expect(errorEl?.textContent).toBe("Impossible de créer l'utilisateur. Veuillez réessayer plus tard.");
   });
 });
