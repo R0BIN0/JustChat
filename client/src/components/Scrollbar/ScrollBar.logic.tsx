@@ -39,26 +39,43 @@ export const useScrollbar = () => {
     };
   }, [scroll.chatContainerRef]);
 
-  const getScroll = () => {
+  /**
+   * This function is used to set current scroll percentage
+   * @returns {void}
+   */
+  const getScroll = (): void => {
     const percentage = getScrollPercentage(scroll.chatContainerRef!);
     setCanScroll(percentage);
     const payload = { ...state, scroll: { ...state.scroll, percentage } };
     dispatch({ type: IAction.SET_SCROLL_PERCENTAGE, payload });
   };
-  const setCanScroll = (percentage: number) => {
+
+  /**
+   * This function is used to set if we can scroll
+   * @param {number} percentage - Current scroll percentage
+   * @returns {void}
+   */
+  const setCanScroll = (percentage: number): void => {
     if (canScrollRef.current && percentage !== 100) {
       canScrollRef.current = false;
     } else if (!canScrollRef.current && percentage === 100) {
       canScrollRef.current = true;
     }
   };
-  const onScroll = (immediate?: boolean) => {
+
+  /**
+   * This function is used to invoke scroll to bottom
+   * @param {boolean} immediate - To scroll to bottom immediatly or not
+   * @returns {void}
+   */
+  const onScroll = (immediate?: boolean): void => {
     if (!canScrollRef.current) return;
     const timeout = setTimeout(() => {
       scrollToBottom(scroll.chatContainerRef!, immediate);
       clearTimeout(timeout);
     }, 10);
   };
+
   return {
     ...state,
   };

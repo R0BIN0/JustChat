@@ -31,6 +31,11 @@ export const useModifyDialog = () => {
     emailIsValid();
   }, [state.email, state.form.emailIsValid]);
 
+  /**
+   * This function is used to handle avatar selection in <Avatar /> Component
+   * @param {number} idx - Index of selected avatar
+   * @returns {void}
+   */
   const handleAvatar = useCallback((idx: number) => {
     avatarRef.current = idx;
   }, []);
@@ -74,23 +79,36 @@ export const useModifyDialog = () => {
       pictureId: avatarRef.current,
     };
     updateUserMutation.mutate(data, {
-      onSuccess: handleUpdateSuccess,
-      onError: handleUpdateError,
+      onSuccess,
+      onError,
     });
   };
 
-  const handleUpdateSuccess = () => {
+  /**
+   * This function is used to handle success of updateUserMutation
+   * @returns {void}
+   */
+  const onSuccess = (): void => {
     dispatchCtx(setDialog({ isOpen: undefined, data: undefined }));
     const newUser = { ...user, name: state.name, email: state.email, pictureId: avatarRef.current };
     dispatchCtx(setUser(newUser));
     emitEvent(ISocketEvent.USER_UDPATE, newUser);
   };
 
-  const handleUpdateError = (error: IError) => {
+  /**
+   * This function is used to handle error(s) of updateUserMutation
+   * @param {IError} error - Error sended from server
+   * @returns {void}
+   */
+  const onError = (error: IError): void => {
     const payload: IState = { ...state, error };
     dispatch({ type: IAction.UPDATE_ERROR_MESSAGE, payload });
   };
 
+  /**
+   * This function is used to open delete user account dialog
+   * @returns {void}
+   */
   const handleDeleteDialog = useCallback((): void => {
     dispatchCtx(setDialog({ isOpen: IDialogs.DELETE, data: undefined }));
   }, []);

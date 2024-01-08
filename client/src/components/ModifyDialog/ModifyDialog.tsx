@@ -1,4 +1,3 @@
-import React from "react";
 import DialogBanner from "../DialogBanner/DialogBanner";
 import Avatar from "../Avatar/Avatar";
 import Input from "../Input/Input";
@@ -6,13 +5,11 @@ import EmailValidation from "../EmailValidation/EmailValidation";
 import { useModifyDialog } from "./ModifyDialog.logic";
 import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 import "./ModifyDialog.css";
-import { IErrorCode } from "../../apis/IErrorCode";
+import { getError } from "../../utils/getError";
 
 const ModifyDialog = () => {
   const logic = useModifyDialog();
-
-  const emailError = logic.error && logic.error.code === IErrorCode.SAME_EMAIL;
-  const nameError = logic.error && logic.error.code === IErrorCode.NAME_ALREADY_USED;
+  const { nameError, emailError } = getError(logic.error?.code);
 
   return (
     <div className="modifyDialog-container">

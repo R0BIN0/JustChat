@@ -1,4 +1,4 @@
-export const scrollToBottom = (ref: HTMLElement, immediate?: boolean) => {
+export const scrollToBottom = (ref: HTMLElement, immediate?: boolean): void => {
   if (!ref) return;
   const { scrollHeight, clientHeight } = ref;
   const top = scrollHeight - clientHeight;

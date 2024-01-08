@@ -47,7 +47,11 @@ export const useUserList = (props: IUserList) => {
     return () => webSocket.removeEventListener("message", onEvent);
   }, [webSocket, users]);
 
-  const handleScroll = useCallback(() => {
+  /**
+   * This function is used to know if we scroll to bottom, if true, and we can fetch another page, we fetch it
+   * @returns {void}
+   */
+  const handleScroll = useCallback((): void => {
     if (!hasNextPage || isFetching) return;
     const scrollTop = document.documentElement.scrollTop;
     const offsetHeight = document.documentElement.offsetHeight;
@@ -90,7 +94,7 @@ export const useUserList = (props: IUserList) => {
    * @param {unknown} event - Event type sended from server side
    * @returns {void}
    */
-  const onEvent = (event: unknown): void => {
+  const onEvent = useCallback((event: unknown): void => {
     const { type, data: dataEvent } = parseSocketEvent(event);
     switch (type) {
       case ISocketEvent.USER_IS_CONNECTED:
@@ -108,14 +112,14 @@ export const useUserList = (props: IUserList) => {
       default:
         break;
     }
-  };
+  }, []);
 
   /**
    * This function is use to handle delete account of a user
    * @param {IUser} updatedUser - Event type sended from server side
    * @returns {void}
    */
-  const onUserDelete = (updatedUser: IUser) => {
+  const onUserDelete = useCallback((updatedUser: IUser): void => {
     queryClient.setQueriesData([QUERY_KEY.USERS, user._id], (oldData: IQueryUser | undefined) => {
       if (!oldData) return { pages: [], pageParams: [] };
       const userIdx = getUserIndexInQuery(updatedUser, oldData);
@@ -124,14 +128,14 @@ export const useUserList = (props: IUserList) => {
       oldData.pages[userIdx] = { users: updatedPage, total: oldData.pages[userIdx].total };
       return { ...oldData };
     });
-  };
+  }, []);
 
   /**
    * This function is use to handle any behavior about user connection receive from the socket and update users cache
    * @param {IUser} updatedUser - Event type sended from server side
    * @returns {void}
    */
-  const onUserConnected = (updatedUser: IUser): void => {
+  const onUserConnected = useCallback((updatedUser: IUser): void => {
     if (updatedUser._id === user._id) return;
     updateUser(updatedUser, { isConnected: true });
     if (!hasNextPage) {
@@ -147,14 +151,14 @@ export const useUserList = (props: IUserList) => {
         );
       }
     }
-  };
+  }, []);
 
   /**
    * This function is use to handle any behavior about user disconnection receive from the socket and update users cache
    * @param {IUser} updatedUser - Event type sended from server side
    * @returns {void}
    */
-  const onUserDisconnected = (updatedUser: IUser): void => updateUser(updatedUser, { isConnected: false });
+  const onUserDisconnected = useCallback((updatedUser: IUser): void => updateUser(updatedUser, { isConnected: false }), []);
 
   /**
    * This function is use to handle any behavior about user update receive from the socket and update users cache
@@ -162,7 +166,7 @@ export const useUserList = (props: IUserList) => {
    * @param {boolean} isConnected - To know the current connection state of user
    * @returns {void}
    */
-  const updateUser = (updatedUser: IUser, { isConnected }: { isConnected: boolean }): void => {
+  const updateUser = useCallback((updatedUser: IUser, { isConnected }: { isConnected: boolean }): void => {
     queryClient.setQueriesData([QUERY_KEY.USERS, user._id], (oldData: IQueryUser | undefined) => {
       if (!oldData) return { pages: [], pageParams: [] };
       const userIdx = getUserIndexInQuery(updatedUser, oldData);
@@ -176,7 +180,7 @@ export const useUserList = (props: IUserList) => {
       oldData.pages[userIdx] = { users: updatedPage, total: oldData.pages[userIdx].total };
       return { ...oldData };
     });
-  };
+  }, []);
 
   /**
    * This function is use to handle any behavior about user first connection receive from the socket and update users cache
@@ -184,7 +188,7 @@ export const useUserList = (props: IUserList) => {
    * @param {IQueryUser | undefined} oldData - Previous data from users cache
    * @returns {IQueryUser}
    */
-  const handleNewUser = (updatedUser: IUser, oldData: IQueryUser | undefined): IQueryUser => {
+  const handleNewUser = useCallback((updatedUser: IUser, oldData: IQueryUser | undefined): IQueryUser => {
     if (!oldData) return { pages: [], pageParams: [] };
     const userIdx = getUserIndexInQuery(updatedUser, oldData);
     if (userIdx >= 0) return { ...oldData };
@@ -196,7 +200,7 @@ export const useUserList = (props: IUserList) => {
       oldData.pages[lastPageIndex].users.push(updatedUser); // Update last array
     }
     return { ...oldData };
-  };
+  }, []);
 
   return { users, isFetching, hasNextPage };
 };

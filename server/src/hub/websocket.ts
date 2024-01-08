@@ -17,7 +17,13 @@ export const initializeWebSocket = () => {
   });
 };
 
-const onEvent = (ws: WebSocket, type: ISocketEvent, evt: unknown) => {
+/**
+ * This function is used to handle any websocket event
+ * @param {WebSocket} ws - Websocket event
+ * @param {ISocketEvent} type - Type of socket event (reference: ISocketEvent.ts)
+ * @returns {void}
+ */
+const onEvent = (ws: WebSocket, type: ISocketEvent, evt: unknown): void => {
   switch (type) {
     case ISocketEvent.USER_IS_CONNECTED:
       userIsConnected(ws, evt as IUser);

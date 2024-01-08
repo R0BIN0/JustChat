@@ -1,8 +1,8 @@
 import EmojiPicker, { Categories, EmojiStyle } from "emoji-picker-react";
-import EmojiIcon from "../../assets/svg/Emoji.svg?react";
 import "./EmojiButton.css";
 import { useEmojiButton } from "./EmojiButton.logic";
 import { memo } from "react";
+import EmojiIcon from "../../icons/EmojiIcon/EmojiIcon";
 
 const categories = [
   {

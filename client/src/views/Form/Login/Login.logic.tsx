@@ -5,16 +5,16 @@ import { useDispatch } from "react-redux";
 import { IAppDispatch } from "../../../redux/store";
 import { useNavigate } from "react-router-dom";
 import { setAuth } from "../../../redux/reducers/authReducer";
-import { useMutation } from "react-query";
-import { login } from "../../../apis/actions/UserAction";
 import { IError } from "../../../apis/IError";
 import { setUser } from "../../../redux/reducers/userReducer";
 import { IUserDTO } from "../../../apis/IUserDTO";
+import { useUserCache } from "../../../hooks/useQueryCache/useUserCache";
 
 export const useLogin = () => {
   // Services
   const dispatchCtx = useDispatch<IAppDispatch>();
   const navigate = useNavigate();
+  const { loginMutation } = useUserCache();
 
   // State
   const [state, dispatch] = useReducer(reducer, { ...initialState });
@@ -30,11 +30,6 @@ export const useLogin = () => {
   useEffect(() => {
     emailIsValid();
   }, [state.email, state.form.emailIsValid]);
-
-  const mutation = useMutation(async () => login({ email: state.email, password: state.password }), {
-    onSuccess: (res) => onSuccess(res),
-    onError: (err: IError) => onError(err),
-  });
 
   /**
    * This function is used to submit form by pressing Enter key
@@ -83,6 +78,24 @@ export const useLogin = () => {
   };
 
   /**
+   * This function is used to handle submit the login form.
+   * @param {React.SyntheticEvent} e - JS Event
+   * @returns {void}
+   */
+  const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
+    e?.preventDefault();
+    if (!state.email || !state.password || !state.form.emailIsValid) return;
+
+    loginMutation.mutate(
+      { email: state.email, password: state.password },
+      {
+        onSuccess,
+        onError,
+      }
+    );
+  };
+
+  /**
    * This function is used to handle succes of the login request.
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
@@ -111,16 +124,5 @@ export const useLogin = () => {
     dispatchCtx(setAuth({ isAuthenticated: false, token: undefined }));
   };
 
-  /**
-   * This function is used to handle submit the login form.
-   * @param {React.SyntheticEvent} e - JS Event
-   * @returns {void}
-   */
-  const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
-    e?.preventDefault();
-    if (!state.email || !state.password || !state.form.emailIsValid) return;
-    mutation.mutate();
-  };
-
-  return { state, dispatch, handleInput, togglePassword, handleSubmitAsync, mutation };
+  return { ...state, dispatch, handleInput, togglePassword, handleSubmitAsync, isLoading: loginMutation.isLoading };
 };

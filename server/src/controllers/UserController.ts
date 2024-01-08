@@ -12,7 +12,7 @@ import { IUserDTO } from "../types/IUserDTO.js";
  * This function is used to registrate a new user
  * @param {Request<{}, any, Pick<IUser> & {confirmPassword: string}>} req - Request which contain user infos and confirmPassword
  * @param {Response<{ token: string; user: IUser }>} res - Response which contain the User token and the User information
- * @returns {void}
+ * @returns {Promise<void>}
  */
 export const registerController = async (
   req: Request<{}, any, IUser & { confirmPassword: string }>,
@@ -39,7 +39,7 @@ export const registerController = async (
  * This function is used to log user
  * @param {Request<{}, any, Pick<IUser, "email" | "password">>} req - Request which contain user email and user password
  * @param {Response<{ token: string }>} res - Response which contain the User token
- * @returns {void}
+ * @returns {Promise<void>}
  */
 export const loginController = async (
   req: Request<{}, any, Pick<IUser, "email" | "password">>,
@@ -65,10 +65,26 @@ export const loginController = async (
 };
 
 /**
- * This function is used to log user
+ * This function is used to get unique user from the DB
+ * @param {Request<{}, any, Pick<IUser, "_id">>} req - Request which contain userId to find user
+ * @param {Response<{ user: IUser }>} res - User found in the Database
+ * @returns {Promise<void>}
+ */
+export const getUserByIdController = async (
+  req: Request<{}, any, Pick<IUser, "_id">>,
+  res: Response<{ user: IUser }>
+): Promise<void> => {
+  const { _id } = req.body;
+  const user = await User.findById(_id);
+  if (!user) throw "error";
+  res.status(IStatusCode.OK).json({ user });
+};
+
+/**
+ * This function is used to update user account
  * @param {Request<{}, any, Pick<IUser, "_id" | "name" | "email | pictureId">>} req - Request which contain user _id, name, email and pictureId
  * @param {Response<{ success: boolean }>} res - Response which contain the success of the request (to trigger react-hook-form success)
- * @returns {void}
+ * @returns {Promise<void>}
  */
 export const updateUserController = async (
   req: Request<{}, any, Pick<IUser, "_id" | "name" | "email" | "pictureId">>,
@@ -89,10 +105,10 @@ export const updateUserController = async (
 };
 
 /**
- * This function is used to log user
+ * This function is used to delete user account
  * @param {Request<{}, any, Pick<IUser, "_id">>} req - Request which contain user _id
  * @param {Response<{ success: boolean }>} res - Response which contain the success of the request (to trigger react-hook-form success)
- * @returns {void}
+ * @returns {Promise<void>}
  */
 export const deleteUserController = async (
   req: Request<{}, any, Pick<IUser, "_id">>,
@@ -103,49 +119,8 @@ export const deleteUserController = async (
   res.status(IStatusCode.OK).json({ success: true });
 };
 
-/**
- * This function is used to get all Users from the DB
- * @param {Request<{}, {}, {}, { userId: string; search: string; start: string; limit: string }>} req - all queries provided by client.
- * @param {Response<{ users: IUser[], total: number }>} res - Users found in the Database that corresponding with queries.
- * @returns {void}
- */
-export const getAllUsersController = async (
-  req: Request<{}, {}, {}, { userId: string; search: string; start: string; limit: string }>,
-  res: Response<{ users: IUser[]; total: number }>
-): Promise<void> => {
-  const userId = req.query.userId;
-  const search = req.query.search;
-  const start = parseInt(req.query.start, 10) || 0;
-  const limit = parseInt(req.query.limit, 10) || 10;
-
-  let query: any = {};
-  query._id = { $ne: userId };
-  if (search) query.name = { $regex: new RegExp(search, "i") };
-
-  const total = await User.countDocuments(query);
-  const users: IUser[] = await User.find(query).skip(start).limit(limit);
-  res.status(IStatusCode.OK).json({ users, total });
-};
-
-/**
- * This function is used to get all Users from the DB
- * @param {Request<{}, any, Pick<IUser, "_id">>} req - Request which contain userId to find user
- * @param {Response<{ user: IUser }>} res - User found in the Database
- * @returns {void}
- */
-export const getUserByIdController = async (
-  req: Request<{}, any, Pick<IUser, "_id">>,
-  res: Response<{ user: IUser }>
-): Promise<void> => {
-  const { _id } = req.body;
-  const user = await User.findById(_id);
-  if (!user) throw "error";
-  res.status(IStatusCode.OK).json({ user });
-};
-
 export const register = tryCatch(registerController);
 export const login = tryCatch(loginController);
+export const getUserById = tryCatch(getUserByIdController);
 export const updateUser = tryCatch(updateUserController);
 export const deleteUser = tryCatch(deleteUserController);
-export const getAllUsers = tryCatch(getAllUsersController);
-export const getUserById = tryCatch(getUserByIdController);

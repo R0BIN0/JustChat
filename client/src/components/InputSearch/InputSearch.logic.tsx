@@ -14,6 +14,11 @@ export const useSearchInput = () => {
     };
   }, [isOpen]);
 
+  /**
+   * This function is used to focus input when shortcut key is pressed
+   * @param {KeyboardEvent} e - Keyboard event
+   * @returns {void}
+   */
   const handleSearchInputShortCut = (e: KeyboardEvent): void => {
     const { code } = e;
     if (code !== "KeyS") return;

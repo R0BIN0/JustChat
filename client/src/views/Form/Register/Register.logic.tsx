@@ -5,16 +5,16 @@ import { useDispatch } from "react-redux";
 import { IAppDispatch } from "../../../redux/store";
 import { useNavigate } from "react-router-dom";
 import { setAuth } from "../../../redux/reducers/authReducer";
-import { useMutation } from "react-query";
 import { IError } from "../../../apis/IError";
-import { register } from "../../../apis/actions/UserAction";
 import { setUser } from "../../../redux/reducers/userReducer";
 import { IUserDTO } from "../../../apis/IUserDTO";
+import { useUserCache } from "../../../hooks/useQueryCache/useUserCache";
 
 export const useRegister = () => {
   // Services
   const dispatchCtx = useDispatch<IAppDispatch>();
   const navigate = useNavigate();
+  const { registerMutation } = useUserCache();
 
   // State
   const [state, dispatch] = useReducer(reducer, { ...initialState });
@@ -33,21 +33,6 @@ export const useRegister = () => {
   useEffect(() => {
     emailIsValid();
   }, [state.email, state.form.emailIsValid]);
-
-  const mutation = useMutation(
-    async () =>
-      register({
-        name: state.name,
-        email: state.email,
-        password: state.password,
-        confirmPassword: state.confirmPassword,
-        pictureId: avatarRef.current,
-      }),
-    {
-      onSuccess: (res) => handleSuccess(res),
-      onError: (err: IError) => handleError(err),
-    }
-  );
 
   /**
    * This function is used to submit form by pressing Enter key
@@ -73,7 +58,12 @@ export const useRegister = () => {
     dispatch({ type: IAction.EMAIL_VALIDATION, payload });
   };
 
-  const handleAvatar = useCallback((idx: number) => {
+  /**
+   * This function is used to handle avatar selection in <Avatar /> Component
+   * @param {number} idx - Index of selected avatar
+   * @returns {void}
+   */
+  const handleAvatar = useCallback((idx: number): void => {
     avatarRef.current = idx;
   }, []);
 
@@ -100,11 +90,34 @@ export const useRegister = () => {
   };
 
   /**
+   * This function is used to handle submit the register form.
+   * @param {React.SyntheticEvent} e - JS Event
+   * @returns {void}
+   */
+  const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
+    e?.preventDefault();
+    if (!state.name || !state.password || !state.form.emailIsValid || state.password !== state.confirmPassword) return;
+    registerMutation.mutate(
+      {
+        name: state.name,
+        email: state.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+        pictureId: avatarRef.current,
+      },
+      {
+        onSuccess,
+        onError,
+      }
+    );
+  };
+
+  /**
    * This function is used to handle succes of the register request.
    * @param {string} token - Token that we received to authenticate user
    * @returns {void}
    */
-  const handleSuccess = useCallback((data: { token: string; user: IUserDTO }): void => {
+  const onSuccess = useCallback((data: { token: string; user: IUserDTO }): void => {
     const { token, user } = data;
     dispatchCtx(setAuth({ isAuthenticated: true, token }));
     dispatchCtx(setUser(user));
@@ -116,7 +129,7 @@ export const useRegister = () => {
    * @param {IError} error - Error with message/errorCode/statusCode
    * @returns {void}
    */
-  const handleError = (error: IError): void => {
+  const onError = (error: IError): void => {
     const payload: IState = {
       ...state,
       error,
@@ -130,16 +143,13 @@ export const useRegister = () => {
     dispatchCtx(setAuth({ isAuthenticated: false, token: undefined }));
   };
 
-  /**
-   * This function is used to handle submit the register form.
-   * @param {React.SyntheticEvent} e - JS Event
-   * @returns {void}
-   */
-  const handleSubmitAsync = (e?: React.SyntheticEvent): void => {
-    e?.preventDefault();
-    if (!state.name || !state.password || !state.form.emailIsValid || state.password !== state.confirmPassword) return;
-    mutation.mutate();
+  return {
+    ...state,
+    dispatch,
+    handleInput,
+    togglePassword,
+    handleSubmitAsync,
+    isLoading: registerMutation.isLoading,
+    handleAvatar,
   };
-
-  return { state, dispatch, handleInput, togglePassword, handleSubmitAsync, mutation, handleAvatar };
 };

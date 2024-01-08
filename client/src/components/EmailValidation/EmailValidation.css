@@ -1,4 +1,4 @@
-.email-validation {
+.form-validation {
   position: absolute;
   top: 0;
   right: 0;
@@ -9,7 +9,7 @@
   align-items: center;
 }
 
-.email-validation span {
+.form-validation span {
   width: 20px;
   height: 20px;
   border: 1px solid var(--secondary-color);
@@ -19,16 +19,16 @@
   align-items: center;
 }
 
-.email-validation span svg {
+.form-validation span svg {
   width: 8px;
   height: 8px;
 }
 
-.email-validation span svg path {
+.form-validation span svg path {
   fill: #6cc0ac;
 }
 
-.email-validation span[data-email-validation~="true"] {
+.form-validation span[data-form-validation~="true"] {
   border: 2px solid #6cc0ac;
   background: #6affb727;
 }

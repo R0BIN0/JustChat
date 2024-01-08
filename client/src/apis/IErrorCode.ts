@@ -1,5 +1,5 @@
 export enum IErrorCode {
-  // Global errors (0 -> 1000)
+  // Global errors (1 -> 1000)
   UNEXCPECTED_ERROR = 1,
   UNAUTHORIZED = 2,
   // Auth (1000 -> 2000)

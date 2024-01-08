@@ -20,6 +20,7 @@ const chatSlice = createSlice({
     setScrollToBottom(state, action: PayloadAction<() => void>) {
       state.scroll.scrollToBottom = action.payload;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setChatContainerRef(state, action: PayloadAction<any>) {
       state.scroll.chatContainerRef = action.payload;
     },

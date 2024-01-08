@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef } from "react";
 import { useQueryCache } from "../../hooks/useQueryCache/useQueryCache";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +38,12 @@ export const useMessageList = () => {
     };
   }, [webSocket, queryChat.data]);
 
-  const onEvent = (event: unknown) => {
+  /**
+   * This function group all socket events
+   * @param {unknown} event - Event type sended from server side
+   * @returns {void}
+   */
+  const onEvent = (event: unknown): void => {
     const { type, data: dataEvent } = parseSocketEvent(event);
     switch (type) {
       case ISocketEvent.SEND_MESSAGE:
@@ -48,13 +54,23 @@ export const useMessageList = () => {
     }
   };
 
-  const onReceiveMessage = (message: Omit<IMessage, "conversationId">) => {
+  /**
+   * This function is used to notify that we received a new message
+   * @param {Omit<IMessage, "conversationId">} message - Message informations
+   * @returns {void}
+   */
+  const onReceiveMessage = (message: Omit<IMessage, "conversationId">): void => {
     if (message.sender !== params.id) return;
     const newCache = { ...queryChat.data, messages: [...queryChat.data.messages, message] };
     mutate({ data: newCache, queryKey: [QUERY_KEY.CHAT, user._id, params.id] });
     scroll.scrollToBottom();
   };
 
+  /**
+   * This function is used to know if the last message is from the same people
+   * @param {number} currentIdx - Index to get last message
+   * @returns {boolean}
+   */
   const isSameSender = (currentIdx: number): boolean => {
     const { messages } = queryChat.data;
     const prevMessageIdx = currentIdx - 1;
@@ -62,6 +78,11 @@ export const useMessageList = () => {
     return messages[currentIdx].sender === messages[prevMessageIdx].sender;
   };
 
+  /**
+   * This function is used to know which information we should display on message
+   * @param {IMessage} item - Message informations
+   * @returns {Pick<IUserDTO, "name" | "pictureId">}
+   */
   const getInfos = (item: IMessage): Pick<IUserDTO, "name" | "pictureId"> => {
     const contact = queryContact.data!.user;
     const isMe = item.sender === user._id;

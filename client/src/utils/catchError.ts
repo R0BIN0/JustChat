@@ -32,6 +32,7 @@ const getMessageError = (err: IErrorCode): string => {
     [IErrorCode.CANNOT_CREATE_CHAT]: "Impossible d'établir la communication. Veuillez recharger la page.",
     [IErrorCode.NO_CHAT_FOUND]: "Impossible d'établir la communication. Veuillez recharger la page.",
     [IErrorCode.USERS_NOT_FOUND]: "Impossible d'établir la communication. Veuillez recharger la page.",
+    [IErrorCode.UNAUTHORIZED]: "Vous n'êtes pas autoriser à vous rendre ici.",
     [IErrorCode.UNEXCPECTED_ERROR]: "Une erreur est survenue. Veuillez réessayer ultérieurement.",
   };
   return map[err] ?? "Une erreur est survenue. Veuillez réessayer ultérieurement.";

@@ -7,7 +7,13 @@ import WebSocket from "ws";
 
 let clients: { userId: string; client: WebSocket }[] = [];
 
-export const userIsConnected = (ws: WebSocket, user: IUser) => {
+/**
+ * This function is used to handle user connection
+ * @param {WebSocket} ws - Websocket event
+ * @param {IUser} user - Concerned user
+ * @returns {void}
+ */
+export const userIsConnected = (ws: WebSocket, user: IUser): void => {
   const { _id } = user;
   const isHere = clients.find((item) => item.userId === _id);
   if (isHere) return;
@@ -16,7 +22,13 @@ export const userIsConnected = (ws: WebSocket, user: IUser) => {
   const event = { type: ISocketEvent.USER_IS_CONNECTED, data: user };
   sendToClient(event, "ALL");
 };
-export const userIsDisconnected = async (user: IUser) => {
+
+/**
+ * This function is used to handle user diconnection
+ * @param {IUser} user - Concerned user
+ * @returns {Promise<void>}
+ */
+export const userIsDisconnected = async (user: IUser): Promise<void> => {
   const { _id } = user;
   if (!_id) return;
   clients = clients.filter((item) => item.userId !== _id);
@@ -25,7 +37,12 @@ export const userIsDisconnected = async (user: IUser) => {
   sendToClient(event, "ALL");
 };
 
-export const userUpdate = (user: IUser) => {
+/**
+ * This function is used to handle user update
+ * @param {IUser} user - Concerned user
+ * @returns {void}
+ */
+export const userUpdate = (user: IUser): void => {
   const { _id } = user;
   if (!_id) return;
   const filterCaller = clients.filter((item) => item.userId !== _id);
@@ -34,7 +51,12 @@ export const userUpdate = (user: IUser) => {
   sendToClient(event, userIds);
 };
 
-export const userDelete = (user: IUser) => {
+/**
+ * This function is used to handle user delete account
+ * @param {IUser} user - Concerned user
+ * @returns {void}
+ */
+export const userDelete = (user: IUser): void => {
   const { _id } = user;
   if (!_id) return;
   const filterCaller = clients.filter((item) => item.userId !== _id);
@@ -43,7 +65,12 @@ export const userDelete = (user: IUser) => {
   sendToClient(event, userIds);
 };
 
-export const sendMessage = async (message: IMessage) => {
+/**
+ * This function is used to handle send message between 2 users
+ * @param {IMessage} message - Message informations
+ * @returns {Promise<void>}
+ */
+export const sendMessage = async (message: IMessage): Promise<void> => {
   const chat = await Chat.findOne({ _id: message.conversationId });
   if (!chat) return;
   delete message["conversationId"];
@@ -53,16 +80,20 @@ export const sendMessage = async (message: IMessage) => {
   sendToClient(event, [message.receiver]);
 };
 
-const sendToClient = (evt: { type: ISocketEvent; data: unknown }, target: string[] | "ALL") => {
+/**
+ * This function is used to send events to concerned users
+ * @param {{ type: ISocketEvent; data: unknown }} evt - Event type and associated datas
+ * @param {string[] | "ALL"} target - To know who we should notify
+ * @returns {void}
+ */
+const sendToClient = (evt: { type: ISocketEvent; data: unknown }, target: string[] | "ALL"): void => {
   let clientsToSend: WebSocket[] = [];
-
   if (target === "ALL") {
     clientsToSend = clients.map((item) => item.client);
   } else {
     const getIds = clients.filter((item) => target.includes(item.userId));
     clientsToSend = getIds.map((item) => item.client);
   }
-
   clientsToSend.forEach((c) => {
     if (c.readyState !== 1) return;
     c.send(JSON.stringify(evt));

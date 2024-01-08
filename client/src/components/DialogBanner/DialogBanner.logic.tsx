@@ -6,7 +6,11 @@ import { setDialog } from "../../redux/reducers/dialogReducer";
 export const useDialogBanner = () => {
   const dispatch = useDispatch<IAppDispatch>();
 
-  const handleClose = useCallback(() => {
+  /**
+   * This function is used to close dialog
+   * @returns {void}
+   */
+  const handleClose = useCallback((): void => {
     dispatch(setDialog({ isOpen: undefined, data: undefined }));
   }, []);
 
