@@ -76,7 +76,7 @@ export const getUserByIdController = async (
 ): Promise<void> => {
   const { _id } = req.body;
   const user = await User.findById(_id);
-  if (!user) throw "error";
+  if (!user) throw new AppError(IErrorCode.NO_USER, "No user found with this ID", IStatusCode.BAD_REQUEST);
   res.status(IStatusCode.OK).json({ user });
 };
 
@@ -98,7 +98,6 @@ export const updateUserController = async (
   const emailIsAlreadyUsed = await User.findOne({ email });
   if (emailIsAlreadyUsed && emailIsAlreadyUsed.id !== _id)
     throw new AppError(IErrorCode.SAME_EMAIL, "This email is already used", IStatusCode.BAD_REQUEST);
-
   const user = await User.findOneAndUpdate({ _id }, { name, email, pictureId });
   if (!user) throw new AppError(IErrorCode.USER_NOT_FOUND, "No User found", IStatusCode.NOT_FOUND);
   res.status(IStatusCode.OK).json({ success: true });
